@@ -1,4 +1,4 @@
-import{H as e,Nt as t,Pt as n,V as r,Y as i,b as a,ct as o,ft as s,g as c,n as l,o as u,r as d,s as f,ut as p,v as m,wt as h}from"./avvisi-DFb4F0Ir.js";import{t as g}from"./copy-Cis23nN9.js";import{T as _,t as v}from"./index-3kYMzu4L.js";var y={name:`log-out`,size:24,node:[[`path`,{d:`m16 17 5-5-5-5`,key:`1bji2h`}],[`path`,{d:`M21 12H9`,key:`dn1m92`}],[`path`,{d:`M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4`,key:`1uf3rs`}]]};y.node;var b=t(y),x={name:`shield-check`,size:24,node:[[`path`,{d:`M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z`,key:`oel41y`}],[`path`,{d:`m9 12 2 2 4-4`,key:`dzmm74`}]]};x.node;var S=t(x),C={name:`smartphone`,size:24,node:[[`rect`,{width:`14`,height:`20`,x:`5`,y:`2`,rx:`2`,ry:`2`,key:`1yt0o3`}],[`path`,{d:`M12 18h.01`,key:`mhygvu`}]]};C.node;var w=t(C),T={name:`upload`,size:24,node:[[`path`,{d:`M12 3v12`,key:`1x0j5s`}],[`path`,{d:`m17 8-5-5-5 5`,key:`7q97r8`}],[`path`,{d:`M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4`,key:`ih7n3h`}]]};T.node;var E=t(T),D={name:`users`,size:24,node:[[`path`,{d:`M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,key:`1yyitq`}],[`path`,{d:`M16 3.128a4 4 0 0 1 0 7.744`,key:`16gr8j`}],[`path`,{d:`M22 21v-2a4 4 0 0 0-3-3.87`,key:`kshegd`}],[`circle`,{cx:`9`,cy:`7`,r:`4`,key:`nufk8`}]]};D.node;var O=t(D),k=n(),A=`/**
+import{H as e,Nt as t,Pt as n,V as r,Y as i,b as a,ct as o,ft as s,g as c,n as l,o as u,r as d,s as f,ut as p,v as m,wt as h}from"./avvisi-jpOktRxp.js";import{t as g}from"./copy-BsMYx-vO.js";import{D as _,t as v}from"./index-Dk3M5WA9.js";var y={name:`log-out`,size:24,node:[[`path`,{d:`m16 17 5-5-5-5`,key:`1bji2h`}],[`path`,{d:`M21 12H9`,key:`dn1m92`}],[`path`,{d:`M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4`,key:`1uf3rs`}]]};y.node;var b=t(y),x={name:`shield-check`,size:24,node:[[`path`,{d:`M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z`,key:`oel41y`}],[`path`,{d:`m9 12 2 2 4-4`,key:`dzmm74`}]]};x.node;var S=t(x),C={name:`smartphone`,size:24,node:[[`rect`,{width:`14`,height:`20`,x:`5`,y:`2`,rx:`2`,ry:`2`,key:`1yt0o3`}],[`path`,{d:`M12 18h.01`,key:`mhygvu`}]]};C.node;var w=t(C),T={name:`upload`,size:24,node:[[`path`,{d:`M12 3v12`,key:`1x0j5s`}],[`path`,{d:`m17 8-5-5-5 5`,key:`7q97r8`}],[`path`,{d:`M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4`,key:`ih7n3h`}]]};T.node;var E=t(T),D={name:`users`,size:24,node:[[`path`,{d:`M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,key:`1yyitq`}],[`path`,{d:`M16 3.128a4 4 0 0 1 0 7.744`,key:`16gr8j`}],[`path`,{d:`M22 21v-2a4 4 0 0 0-3-3.87`,key:`kshegd`}],[`circle`,{cx:`9`,cy:`7`,r:`4`,key:`nufk8`}]]};D.node;var O=t(D),k=n(),A=`/**
  * Postino del CRM — Teatro Nazionale Firenze
  *
  * Vive nel Gmail teatronazionalefirenze@gmail.com (quello che importa info@ via POP3). Fa questi lavori, tutti senza
@@ -17,7 +17,11 @@ import{H as e,Nt as t,Pt as n,V as r,Y as i,b as a,ct as o,ft as s,g as c,n as l
  * 4. Ogni mattina legge i report DMARC arrivati (allegati compressi che il CRM da solo non apre) e manda al CRM un
  *    riassunto: dice se le email spedite con l'indirizzo del dominio superano i controlli di sicurezza.
  *
- * 5. Ogni lunedì mattina scarica un esportino di tutti i dati del CRM (lead, contatti, storico) e lo salva su Google
+ * 5. Ogni 15 minuti rilegge in Gmail, pochi lead alla volta, la conversazione con ciascuno (ultimi 6 mesi): i messaggi che
+ *    il CRM non ha ancora (arrivati prima del Postino, archiviati, scritti da un collega con il teatro in copia) entrano
+ *    nella scheda del lead e nella sua storia. Così «Prepara messaggio» parte sempre dalla conversazione vera.
+ *
+ * 6. Ogni lunedì mattina scarica un esportino di tutti i dati del CRM (lead, contatti, storico) e lo salva su Google
  *    Drive, cartella «CRM Teatro — Backup». Tiene solo le ultime 10 settimane, le più vecchie le cancella da sole.
  *
  * Questo script NON invia email, NON cancella e NON modifica la posta: legge e crea bozze. Su Drive scrive solo dentro la
@@ -178,6 +182,33 @@ function controllaInviati() {
   } finally {
     lock.releaseLock();
   }
+  rileggiConversazioni();
+}
+
+/** Rete di sicurezza: il CRM indica quali lead rileggere (al massimo 15 per volta; quelli in conversazione ogni giorno,
+ *  gli altri ogni settimana) e la ricerca da fare; qui si raccolgono i messaggi e il CRM tiene solo quello che manca.
+ *  Si può anche eseguire a mano. */
+function rileggiConversazioni() {
+  const daLeggere = (chiamaCrm('conversazioni_da_leggere').leads) || [];
+  if (!daLeggere.length) return;
+  const letture = daLeggere.map(function (l) {
+    const messaggi = [];
+    GmailApp.search(l.ricerca, 0, 15).forEach(function (thread) {
+      thread.getMessages().forEach(function (m) {
+        if (m.isDraft() || messaggi.length >= 80) return;
+        messaggi.push({
+          id: m.getId(),
+          da: m.getFrom(),
+          a: indirizziIn(m.getTo() + ',' + m.getCc()),
+          oggetto: m.getSubject(),
+          data: m.getDate().toISOString(),
+          corpo: m.getPlainBody().slice(0, 3000),
+        });
+      });
+    });
+    return { lead_id: l.id, messaggi: messaggi };
+  });
+  chiamaCrm('conversazioni', { letture: letture });
 }
 
 /** I messaggi inviati dal Gmail del teatro verso i lead diventano «contatto fatto» nel CRM. */
@@ -199,6 +230,7 @@ function inviatiDa(ricerca) {
         a: indirizziIn(m.getTo() + ',' + m.getCc()),
         oggetto: m.getSubject(),
         data: m.getDate().toISOString(),
+        corpo: m.getPlainBody().slice(0, 4000),
       });
     });
   });
