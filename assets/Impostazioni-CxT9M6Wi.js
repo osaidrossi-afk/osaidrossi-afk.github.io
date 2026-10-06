@@ -1,4 +1,4 @@
-import{At as e,Bt as t,G as n,K as r,S as i,b as a,gt as o,mt as s,n as c,o as l,r as u,s as d,tt as f,v as p,vt as m,zt as h}from"./avvisi-BZ9e1p1c.js";import{t as g}from"./copy-B5ZT1cCP.js";import{A as _,t as v}from"./index-SHSFeec3.js";var y={name:`log-out`,size:24,node:[[`path`,{d:`m16 17 5-5-5-5`,key:`1bji2h`}],[`path`,{d:`M21 12H9`,key:`dn1m92`}],[`path`,{d:`M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4`,key:`1uf3rs`}]]};y.node;var b=h(y),x={name:`shield-check`,size:24,node:[[`path`,{d:`M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z`,key:`oel41y`}],[`path`,{d:`m9 12 2 2 4-4`,key:`dzmm74`}]]};x.node;var S=h(x),C={name:`smartphone`,size:24,node:[[`rect`,{width:`14`,height:`20`,x:`5`,y:`2`,rx:`2`,ry:`2`,key:`1yt0o3`}],[`path`,{d:`M12 18h.01`,key:`mhygvu`}]]};C.node;var w=h(C),T={name:`upload`,size:24,node:[[`path`,{d:`M12 3v12`,key:`1x0j5s`}],[`path`,{d:`m17 8-5-5-5 5`,key:`7q97r8`}],[`path`,{d:`M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4`,key:`ih7n3h`}]]};T.node;var E=h(T),D={name:`users`,size:24,node:[[`path`,{d:`M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,key:`1yyitq`}],[`path`,{d:`M16 3.128a4 4 0 0 1 0 7.744`,key:`16gr8j`}],[`path`,{d:`M22 21v-2a4 4 0 0 0-3-3.87`,key:`kshegd`}],[`circle`,{cx:`9`,cy:`7`,r:`4`,key:`nufk8`}]]};D.node;var O=h(D),k=t(),A=`/**\r
+import{At as e,Bt as t,G as n,K as r,S as i,b as a,gt as o,mt as s,n as c,o as l,r as u,s as d,tt as f,v as p,vt as m,zt as h}from"./avvisi-BZ9e1p1c.js";import{t as g}from"./copy-B5ZT1cCP.js";import{A as _,t as v}from"./index-Clr65JI0.js";var y={name:`log-out`,size:24,node:[[`path`,{d:`m16 17 5-5-5-5`,key:`1bji2h`}],[`path`,{d:`M21 12H9`,key:`dn1m92`}],[`path`,{d:`M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4`,key:`1uf3rs`}]]};y.node;var b=h(y),x={name:`shield-check`,size:24,node:[[`path`,{d:`M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z`,key:`oel41y`}],[`path`,{d:`m9 12 2 2 4-4`,key:`dzmm74`}]]};x.node;var S=h(x),C={name:`smartphone`,size:24,node:[[`rect`,{width:`14`,height:`20`,x:`5`,y:`2`,rx:`2`,ry:`2`,key:`1yt0o3`}],[`path`,{d:`M12 18h.01`,key:`mhygvu`}]]};C.node;var w=h(C),T={name:`upload`,size:24,node:[[`path`,{d:`M12 3v12`,key:`1x0j5s`}],[`path`,{d:`m17 8-5-5-5 5`,key:`7q97r8`}],[`path`,{d:`M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4`,key:`ih7n3h`}]]};T.node;var E=h(T),D={name:`users`,size:24,node:[[`path`,{d:`M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,key:`1yyitq`}],[`path`,{d:`M16 3.128a4 4 0 0 1 0 7.744`,key:`16gr8j`}],[`path`,{d:`M22 21v-2a4 4 0 0 0-3-3.87`,key:`kshegd`}],[`circle`,{cx:`9`,cy:`7`,r:`4`,key:`nufk8`}]]};D.node;var O=h(D),k=t(),A=`/**\r
  * Postino del CRM — Teatro Nazionale Firenze\r
  *\r
  * Vive nel Gmail teatronazionalefirenze@gmail.com (quello che importa info@ via POP3). Fa questi lavori, tutti senza\r
@@ -28,7 +28,10 @@ import{At as e,Bt as t,G as n,K as r,S as i,b as a,gt as o,mt as s,n as c,o as l
  * 7. Ogni lunedì mattina scarica un esportino di tutti i dati del CRM (lead, contatti, storico) e lo salva su Google\r
  *    Drive, cartella «CRM Teatro — Backup». Tiene solo le ultime 10 settimane, le più vecchie le cancella da sole.\r
  *\r
- * Questo script NON invia email, NON cancella e NON modifica la posta: legge e crea bozze. Su Drive scrive solo dentro la\r
+ * 8. Ogni 5 minuti sposta rimbalzi, avvisi di mancata consegna e report DMARC già letti dal CRM fuori dalla posta in\r
+ *    arrivo, sotto l'etichetta «Sistema (rimbalzi e DMARC)»: non confondono più chi legge la posta.\r
+ *\r
+ * Questo script NON invia email e NON cancella nulla: legge, crea bozze e archivia la sola posta di sistema. Su Drive scrive solo dentro la\r
  * sua cartella di backup, non tocca nient'altro.\r
  *\r
  * La chiave la crea lo script stesso al primo avvio (proprietà CHIAVE_POSTINO) e la registra una volta sul\r
@@ -124,6 +127,7 @@ function controllaPosta() {\r
     lotto.forEach(function (m) { visti.push(m.id); });\r
   }\r
   props.setProperty('VISTI', JSON.stringify(visti.slice(-400)));\r
+  riordinaSistema();\r
 }\r
 \r
 // ---------- bozze Gmail ----------\r
@@ -305,6 +309,36 @@ function inviatiDa(ricerca) {\r
   }\r
   // Una proprietà di Apps Script tiene al massimo 9 KB: 400 id bastano per tre giorni di invii.\r
   props.setProperty('VISTI_INVIATI', JSON.stringify(visti.slice(-400)));\r
+}\r
+\r
+// ---------- posta di sistema fuori dalla posta in arrivo ----------\r
+\r
+const ETICHETTA_SISTEMA = 'Sistema (rimbalzi e DMARC)';\r
+// Avvisi di mancata consegna, ritardi e report DMARC: servono al CRM, non a chi legge la posta.\r
+const RICERCA_SISTEMA = 'in:inbox {from:mailer-daemon from:postmaster from:noreply-dmarc-support@google.com from:dmarcreport from:dmarc subject:"Report domain" subject:"Delivery Status Notification" subject:"Undeliverable" subject:"Mail delivery failed" subject:"Non recapitabile" subject:"Returned mail"}';\r
+\r
+/** Sposta la posta di sistema fuori dalla posta in arrivo, sotto l'etichetta «Sistema (rimbalzi e DMARC)». Solo quella\r
+ *  che il CRM ha già letto (oppure più vecchia di due giorni): così nessun rimbalzo o report va perso. Non cancella niente. */\r
+function riordinaSistema() {\r
+  const props = PropertiesService.getScriptProperties();\r
+  const letti = new Set(JSON.parse(props.getProperty('VISTI') || '[]').concat(JSON.parse(props.getProperty('DMARC_VISTI') || '[]')));\r
+  const vecchio = Date.now() - 2 * 86400000;\r
+  const etichetta = GmailApp.getUserLabelByName(ETICHETTA_SISTEMA) || GmailApp.createLabel(ETICHETTA_SISTEMA);\r
+  GmailApp.search(RICERCA_SISTEMA, 0, 100).forEach(function (thread) {\r
+    const messaggi = thread.getMessages();\r
+    // Una conversazione con un nostro invio e il suo rimbalzo: si sposta solo se tutti i messaggi in arrivo sono di sistema.\r
+    const altri = messaggi.some(function (m) {\r
+      const da = m.getFrom().toLowerCase();\r
+      return !m.isDraft() && !/mailer-daemon|postmaster|dmarc/.test(da) && !/teatronazionalefirenze/.test(da);\r
+    });\r
+    if (altri) return;\r
+    const pronti = messaggi.every(function (m) {\r
+      return letti.has(m.getId()) || m.getDate().getTime() < vecchio || /teatronazionalefirenze/.test(m.getFrom().toLowerCase());\r
+    });\r
+    if (!pronti) return;\r
+    thread.addLabel(etichetta);\r
+    thread.moveToArchive();\r
+  });\r
 }\r
 \r
 // ---------- report DMARC ----------\r
