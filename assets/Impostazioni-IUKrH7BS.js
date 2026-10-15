@@ -1,4 +1,4 @@
-import{Bt as e,Et as t,H as n,Ot as r,Q as i,S as a,Xt as o,Yt as s,Z as c,b as l,n as u,nt as d,o as f,r as p,s as m,ut as h,w as g,wt as _}from"./avvisi-COjtaNGA.js";import{t as v}from"./bot-B3Cl4hlU.js";import{G as y,N as b,n as x}from"./index-V5nVVnlB.js";var S={name:`log-out`,size:24,node:[[`path`,{d:`m16 17 5-5-5-5`,key:`1bji2h`}],[`path`,{d:`M21 12H9`,key:`dn1m92`}],[`path`,{d:`M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4`,key:`1uf3rs`}]]};S.node;var C=s(S),w={name:`shield-check`,size:24,node:[[`path`,{d:`M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z`,key:`oel41y`}],[`path`,{d:`m9 12 2 2 4-4`,key:`dzmm74`}]]};w.node;var T=s(w),E={name:`smartphone`,size:24,node:[[`rect`,{width:`14`,height:`20`,x:`5`,y:`2`,rx:`2`,ry:`2`,key:`1yt0o3`}],[`path`,{d:`M12 18h.01`,key:`mhygvu`}]]};E.node;var D=s(E),O={name:`upload`,size:24,node:[[`path`,{d:`M12 3v12`,key:`1x0j5s`}],[`path`,{d:`m17 8-5-5-5 5`,key:`7q97r8`}],[`path`,{d:`M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4`,key:`ih7n3h`}]]};O.node;var k=s(O),A={name:`users`,size:24,node:[[`path`,{d:`M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,key:`1yyitq`}],[`path`,{d:`M16 3.128a4 4 0 0 1 0 7.744`,key:`16gr8j`}],[`path`,{d:`M22 21v-2a4 4 0 0 0-3-3.87`,key:`kshegd`}],[`circle`,{cx:`9`,cy:`7`,r:`4`,key:`nufk8`}]]};A.node;var j=s(A),M=o(),N=`/**
+import{Bt as e,Et as t,H as n,Ot as r,Q as i,S as a,Xt as o,Yt as s,Z as c,b as l,n as u,nt as d,o as f,r as p,s as m,ut as h,w as g,wt as _}from"./avvisi-COjtaNGA.js";import{t as v}from"./bot-B3Cl4hlU.js";import{G as y,N as b,n as x}from"./index-BvIxoPT5.js";var S={name:`log-out`,size:24,node:[[`path`,{d:`m16 17 5-5-5-5`,key:`1bji2h`}],[`path`,{d:`M21 12H9`,key:`dn1m92`}],[`path`,{d:`M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4`,key:`1uf3rs`}]]};S.node;var C=s(S),w={name:`shield-check`,size:24,node:[[`path`,{d:`M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z`,key:`oel41y`}],[`path`,{d:`m9 12 2 2 4-4`,key:`dzmm74`}]]};w.node;var T=s(w),E={name:`smartphone`,size:24,node:[[`rect`,{width:`14`,height:`20`,x:`5`,y:`2`,rx:`2`,ry:`2`,key:`1yt0o3`}],[`path`,{d:`M12 18h.01`,key:`mhygvu`}]]};E.node;var D=s(E),O={name:`upload`,size:24,node:[[`path`,{d:`M12 3v12`,key:`1x0j5s`}],[`path`,{d:`m17 8-5-5-5 5`,key:`7q97r8`}],[`path`,{d:`M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4`,key:`ih7n3h`}]]};O.node;var k=s(O),A={name:`users`,size:24,node:[[`path`,{d:`M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2`,key:`1yyitq`}],[`path`,{d:`M16 3.128a4 4 0 0 1 0 7.744`,key:`16gr8j`}],[`path`,{d:`M22 21v-2a4 4 0 0 0-3-3.87`,key:`kshegd`}],[`circle`,{cx:`9`,cy:`7`,r:`4`,key:`nufk8`}]]};A.node;var j=s(A),M=o(),N=`/**
  * Postino del CRM — Teatro Nazionale Firenze
  *
  * Vive nel Gmail teatronazionalefirenze@gmail.com (quello che importa info@ via POP3). Fa questi lavori, tutti senza
@@ -226,7 +226,18 @@ function controllaPosta() {
     // Margine di 4 ore: la posta di info@ arriva qui via POP, a volte con ore di ritardo. Al primo giro (o dopo un fermo)
     // si guardano gli ultimi 2 giorni, come prima.
     const fili = cerca('in:inbox' + dopo(finestra('POSTA_DAL', 240, 2)), 0, 100);
+    const miei = [(Session.getEffectiveUser().getEmail() || '').toLowerCase(), MITTENTE].filter(function (x) { return x; });
     messaggiDi(fili).forEach(function (messaggi) {
+      // Con chi abbiamo scritto in questa conversazione: se rispondono da un altro indirizzo (un collega, la segreteria,
+      // un Gmail personale) il server riconosce comunque il lead.
+      const filo = [];
+      messaggi.forEach(function (m) {
+        const da = m.getFrom().toLowerCase();
+        if (!miei.some(function (x) { return da.indexOf(x) !== -1; })) return;
+        indirizziIn(m.getTo() + ',' + m.getCc()).forEach(function (e) {
+          if (miei.indexOf(e) === -1 && filo.indexOf(e) === -1 && filo.length < 10) filo.push(e);
+        });
+      });
       messaggi.forEach(function (m) {
         const id = m.getId();
         if (giaVisti.has(id) || m.isDraft()) return;
@@ -235,6 +246,7 @@ function controllaPosta() {
           da: m.getFrom(),
           a: indirizziIn(m.getTo()),
           cc: indirizziIn(m.getCc()),
+          filo: filo,
           oggetto: m.getSubject(),
           data: m.getDate().toISOString(),
           anteprima: m.getPlainBody().slice(0, 6000),
