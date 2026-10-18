@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https://fcarfyibyhmgpvxdwxvl.supabase.co; img-src 'self' data:; base-uri 'none'; form-action 'none'" />
+  <title>Serate Voci d'Italia · Teatro Nazionale Firenze</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>
+    :root {
+      --bg: #f6f2ea; --surface: #fff; --line: #e6decf; --ink: #1b1a17; --muted: #6c665b;
+      --accent: #7a1f2b; --brass: #7a5c1e; --warn: #85590c; --warn-soft: #f7ecd6; --ok: #2c6541;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #141115; --surface: #1f1b20; --line: #342e35; --ink: #f2ede4; --muted: #a79f93;
+        --accent: #e0707d; --brass: #d8b774; --warn: #e4b863; --warn-soft: #3a2e18; --ok: #82c89b; }
+    }
+    * { box-sizing: border-box; margin: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; padding: 24px 16px 40px; }
+    main { max-width: 640px; margin: 0 auto; }
+    .sopra { font-size: 13px; color: var(--muted); }
+    h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 30px; margin: 4px 0 6px; }
+    .spiega { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+    ol { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    li { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 13px 16px;
+      display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; }
+    li.oggi { border: 2px solid var(--accent); }
+    .quando { font-weight: 700; font-size: 15px; }
+    .quando small { font-weight: 600; color: var(--accent); margin-left: 6px; }
+    .numero { grid-row: 1 / span 2; grid-column: 2; text-align: right; }
+    .numero strong { font-family: Georgia, serif; font-size: 30px; font-weight: 500; display: block; line-height: 1; }
+    .numero span { font-size: 11.5px; color: var(--muted); }
+    .numero.vuoto strong { color: var(--muted); font-size: 20px; }
+    .dett { font-size: 12.5px; color: var(--muted); }
+    .nota { grid-column: 1 / -1; font-size: 13.5px; margin-top: 6px; padding: 7px 10px; background: var(--bg); border-radius: 10px; }
+    .dubbio { display: inline-block; font-size: 11.5px; font-weight: 700; color: var(--warn); background: var(--warn-soft);
+      padding: 2px 8px; border-radius: 99px; margin-top: 4px; }
+    .stato { font-size: 13px; color: var(--muted); margin-top: 18px; }
+    .errore { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="sopra">Teatro Nazionale Firenze · per il catering</p>
+    <h1>Serate di Voci d'Italia</h1>
+    <p class="spiega">Ospiti previsti per ogni serata (inizio alle 20:30, Jazz Bar aperto). Il numero cresce man mano che arrivano
+      le prenotazioni: la pagina si aggiorna da sola ogni due minuti.</p>
+    <div id="contenuto"><p class="stato">Carico le serate…</p></div>
+    <p class="stato" id="aggiornato"></p>
+  </main>
+  <script src="/catering.js"></script>
+</body>
+</html>
