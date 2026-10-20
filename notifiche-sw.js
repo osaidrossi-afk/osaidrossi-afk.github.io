@@ -6,7 +6,8 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(d.titolo || 'CRM Teatro', {
       body: d.testo || '',
       icon: '/icons/icon-192.png',
-      badge: '/icons/icon-192.png',
+      // Barra di stato di Android: solo la sagoma del logo su trasparente (npm run icone), altrimenti viene un quadrato bianco.
+      badge: '/icons/badge-96.png',
       data: { url: d.url || '/' },
       tag: d.url || 'crm',
       renotify: true,
