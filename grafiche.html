@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://fcarfyibyhmgpvxdwxvl.supabase.co; img-src 'self' data: blob:; font-src 'self'; base-uri 'none'; form-action 'none'" />
+  <title>Grafiche della serata · Voci d'Italia</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>
+    :root {
+      --bg: #f6f2ea; --surface: #fff; --line: #e6decf; --ink: #1b1a17; --muted: #6c665b;
+      --accent: #7a1f2b; --accent-ink: #fff; --brass: #7a5c1e; --warn: #85590c; --warn-soft: #f7ecd6; --ok: #2c6541; --ok-soft: #e1f0e6;
+      --campo: #fbf9f4;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #141115; --surface: #1f1b20; --line: #342e35; --ink: #f2ede4; --muted: #a79f93;
+        --accent: #e0707d; --accent-ink: #1b1114; --brass: #d8b774; --warn: #e4b863; --warn-soft: #3a2e18; --ok: #82c89b; --ok-soft: #1d3326;
+        --campo: #272229; }
+    }
+    * { box-sizing: border-box; margin: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; padding: 22px 16px 80px; }
+    main { max-width: 720px; margin: 0 auto; }
+    .sopra { font-size: 13px; color: var(--muted); }
+    h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 30px; margin: 4px 0 6px; }
+    .spiega { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--brass); font-weight: 700; margin-bottom: 12px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; }
+    label small { font-weight: 400; color: var(--muted); }
+    input, select, textarea { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--campo); color: var(--ink); }
+    textarea { resize: vertical; }
+    input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+    .riga { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    button { font: inherit; font-size: 15px; font-weight: 600; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--campo); color: var(--ink); cursor: pointer; }
+    button[aria-pressed="true"] { border: 2px solid var(--accent); }
+    button.primario { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .fisso { font-size: 13px; color: var(--muted); padding: 2px 0 8px; line-height: 1.4; }
+    #elenco { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .voce { border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px 12px; background: var(--campo); }
+    .voce.trascinata { opacity: .55; border-color: var(--accent); }
+    .voce.solo-piano, .voce.intervallo { background: var(--surface); border-style: dashed; }
+    .testa { display: flex; align-items: center; gap: 6px; }
+    .testa .titolo-voce { flex: 1; font-size: 12.5px; font-weight: 700; color: var(--muted); letter-spacing: .03em; }
+    .testa button { padding: 6px 10px; font-size: 16px; min-width: 40px; min-height: 40px; line-height: 1; }
+    .maniglia { cursor: grab; touch-action: none; }
+    .coppia { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 560px) { .coppia { grid-template-columns: 1fr; } }
+    .nuovi { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .nuovi button { flex: 1 1 180px; }
+    .tab { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .tab button { padding: 8px 12px; font-size: 14px; }
+    .anteprima { width: 100%; background: #000; border-radius: 12px; display: block; }
+    .anteprima-box { position: relative; min-height: 120px; }
+    .caricamento { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; pointer-events: none; }
+    .azioni { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .azioni button { flex: 1 1 200px; }
+    .msg { font-size: 13.5px; margin-top: 10px; padding: 9px 12px; border-radius: 10px; background: var(--campo); line-height: 1.4; }
+    .msg.ok { background: var(--ok-soft); color: var(--ok); }
+    .msg.attenzione { background: var(--warn-soft); color: var(--warn); }
+    .controllo { font-size: 13.5px; margin-top: 10px; padding: 9px 12px; border-radius: 10px; line-height: 1.4; }
+    .controllo.ok { background: var(--ok-soft); color: var(--ok); }
+    .controllo.attenzione { background: var(--warn-soft); color: var(--warn); }
+    .stato { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+    .nota { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin-top: 8px; }
+    .errore { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    h3.sotto { font-size: 13px; font-weight: 700; margin: 16px 0 4px; color: var(--ink); }
+    progress { width: 100%; height: 12px; margin-top: 10px; accent-color: var(--accent); }
+    details summary { cursor: pointer; font-size: 14px; font-weight: 600; padding: 6px 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="sopra">Teatro Nazionale Firenze · Voci d'Italia</p>
+    <h1>Grafiche della serata</h1>
+    <p class="spiega">Scrivi artisti e programma: le grafiche per gli schermi esterni, il ledwall e gli schermi interni si preparano da sole,
+      con la stessa grafica e gli stessi font di sempre. Cambiano solo i nomi e i brani, e il testo si adatta da solo allo spazio.</p>
+    <div id="contenuto" hidden>
+      <section class="card" aria-labelledby="h-serata">
+        <h2 id="h-serata">La serata</h2>
+        <div class="riga">
+          <div><label for="data">Giorno</label><input id="data" type="date" /></div>
+          <div><label for="orario">Orario <small>(es. 20.30)</small></label><input id="orario" inputmode="decimal" autocomplete="off" /></div>
+        </div>
+        <label for="quando">Titolo sulle grafiche</label>
+        <select id="quando">
+          <option value="Tonight">Stasera — «Tonight»</option>
+          <option value="Tomorrow">Domani — «Tomorrow» (grafica messa il giorno prima)</option>
+        </select>
+        <p class="stato" id="stato-serata"></p>
+      </section>
+
+      <section class="card" aria-labelledby="h-artisti">
+        <h2 id="h-artisti">Artisti</h2>
+        <label for="soprano">Soprano</label><input id="soprano" autocomplete="off" />
+        <div class="riga">
+          <div><label for="ruolo2">Seconda voce</label>
+            <select id="ruolo2"><option>Tenor</option><option>Baritone</option><option>Bass-baritone</option></select></div>
+          <div><label for="voce2">Nome</label><input id="voce2" autocomplete="off" /></div>
+        </div>
+        <label for="pianista">Pianoforte <small>(con M° davanti al nome)</small></label><input id="pianista" autocomplete="off" placeholder="M° nome e cognome" />
+      </section>
+
+      <section class="card" aria-labelledby="h-programma">
+        <h2 id="h-programma">Programma</h2>
+        <details id="incolla-box">
+          <summary>Incolla il programma (da WhatsApp)</summary>
+          <label for="incolla">Incolla qui il testo</label>
+          <textarea id="incolla" rows="6" placeholder="Titolo del brano&#10;from nome dell'opera&#10;by nome e cognome dell'autore&#10;&#10;Titolo del brano successivo&#10;…"></textarea>
+          <p class="nota">I titoli e le opere restano come sono scritti; i nomi degli autori si abbreviano da soli (nome e cognome → iniziale e cognome).</p>
+          <div class="azioni"><button type="button" id="compila">Compila il programma da questo testo</button></div>
+        </details>
+        <p class="fisso">Ordina il programma come vuoi: trascina una scheda con ☰, oppure usa le frecce. I pezzi solo per pianoforte si spostano come i brani. Prima dell'intervallo i brani vanno a sinistra,
+          dopo a destra. Quanti brani metti, il testo si ridimensiona da solo (stessi font) finché sta tutto nella grafica.</p>
+        <div id="elenco" aria-label="Programma, in ordine"></div>
+        <div class="nuovi">
+          <button type="button" id="nuovo-brano">+ Aggiungi un brano</button>
+          <button type="button" id="nuovo-solo">+ Pezzo solo pianoforte</button>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="h-anteprima">
+        <h2 id="h-anteprima">Come vengono</h2>
+        <div class="tab" id="tab" role="group" aria-label="Quale grafica vedere"></div>
+        <div class="anteprima-box"><canvas id="anteprima" class="anteprima" aria-label="Anteprima della grafica"></canvas><div class="caricamento" id="caricamento"></div></div>
+        <div id="controllo" class="controllo" role="status"></div>
+        <h3 class="sotto">Immagini (PNG)</h3>
+        <div class="azioni">
+          <button type="button" id="scarica-questa">Scarica solo questa</button>
+          <button type="button" class="primario" id="scarica">Scarica tutte le immagini</button>
+        </div>
+        <p class="nota">Il tappo del ledwall è solo un'immagine PNG, grande esattamente come il ledwall (4224 × 4320). Per mandarlo ai tecnici: scarica
+          «Ledwall · tappo» e caricalo su <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer">WeTransfer</a> (si apre in un'altra pagina).</p>
+        <h3 class="sotto">Video per gli schermi esterni (MP4)</h3>
+        <p class="nota">Durano 15 secondi: l'animazione di entrata di sempre (come in Canva, solo in entrata) e poi l'immagine resta ferma. Si preparano qui,
+          nel browser: dal computer, con Chrome o Edge; serve circa un minuto per video. Tieni aperta la pagina.</p>
+        <div class="azioni">
+          <button type="button" id="video-questo">Video di questa grafica</button>
+          <button type="button" class="primario" id="video-tutti">Tutti i video</button>
+        </div>
+        <progress id="avanzamento" max="1" value="0" hidden aria-label="Avanzamento del video"></progress>
+        <div class="azioni"><button type="button" id="salva">Salva la serata</button></div>
+        <div id="msg" class="msg" role="status" hidden></div>
+        <label for="chisei">Il tuo nome <small>(così si sa chi ha scritto)</small></label>
+        <input id="chisei" autocomplete="off" />
+      </section>
+    </div>
+    <div id="errore" class="errore" hidden></div>
+    <p class="nota">Cosa viene salvato: solo il giorno, l'orario, i nomi degli artisti, il programma e (se lo scrivi) il tuo nome, nel database del Teatro Nazionale Firenze.
+      La pagina non usa cookie né servizi esterni; la bozza che stai scrivendo resta anche nel tuo telefono, per non perderla. Font: Belleza, Radley e Allura (licenza SIL OFL).</p>
+  </main>
+  <script src="/grafiche/render.js"></script>
+  <script src="/grafiche/testi.js"></script>
+  <script src="/grafiche/modelli.js"></script>
+  <script src="/grafiche/lib/mp4-muxer.js"></script>
+  <script src="/grafiche/video.js"></script>
+  <script src="/grafiche/repertorio.js"></script>
+  <script src="/grafiche.js"></script>
+</body>
+</html>
