@@ -4,7 +4,9 @@
 (function () {
   var RPC = 'https://fcarfyibyhmgpvxdwxvl.supabase.co/rest/v1/rpc/'
   var APIKEY = 'sb_publishable_Q4d6rxfR-VnNOf1mZmHSLw_nvwG8ohC'
-  var chiave = decodeURIComponent((location.hash || '').replace(/^#/, ''))
+  var partiHash = decodeURIComponent((location.hash || '').replace(/^#/, '')).split('&')
+  var chiave = partiHash[0]
+  var dataDaLink = (partiHash.filter(function (p) { return /^d=\d{4}-\d{2}-\d{2}$/.test(p) })[0] || '').slice(2)
   var $ = function (id) { return document.getElementById(id) }
   var T = window.GRAFICHE_TESTI
   var tabCorrente = 'esterni-artisti'
@@ -13,6 +15,7 @@
   var attesaSalva = null
   var ultimoSalvato = ''
   var caricando = false
+  var statoSerata = 'bozza'
   var BOZZA = 'grafiche-bozza-3'
 
   var TABS = [
@@ -291,6 +294,64 @@
     }, ritardo)
   }
 
+  // ---------- conferma ----------
+  function mostraConferma(stato, quando, chi) {
+    statoSerata = stato
+    var box = $('conferma-stato')
+    var b = $('conferma')
+    if (stato === 'confermata') {
+      var q = quando ? new Date(quando) : null
+      box.hidden = false
+      box.className = 'controllo ok'
+      box.textContent = 'Confermata' + (q ? ' il ' + q.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + ' alle ' + q.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '') +
+        (chi ? ' da ' + chi : '') + '. Il teatro è stato avvisato. Se cambi qualcosa, va confermata di nuovo.'
+      b.textContent = 'Confermata ✓'
+      b.disabled = true
+    } else {
+      box.hidden = true
+      b.textContent = 'Conferma: è tutto pronto'
+      b.disabled = false
+    }
+  }
+
+  // Prima di confermare si controllano tutte le grafiche (in piccolo): se qualcosa non entra o manca, non si conferma.
+  function verificaTutte() {
+    var d = perDisegno(leggiForm())
+    var problemi = []
+    return TABS.reduce(function (p, t) {
+      return p.then(function () {
+        var c = document.createElement('canvas')
+        return window.GRAFICHE_RENDER.disegna(c, modelloDi(t), d, { scala: 0.05 }).then(function () {
+          var g = c.grafiche
+          if (g.problemi.length || g.scala < g.minimo) problemi.push(t.nome)
+        })
+      })
+    }, Promise.resolve()).then(function () { return problemi })
+  }
+
+  function conferma() {
+    var mancano = campiMancanti(leggiForm())
+    if (mancano) { messaggio('Mancano ancora ' + mancano + ' campi (artisti, orario o titoli dei brani). Completali, poi conferma.', 'attenzione'); return }
+    if (!$('chisei').value.trim()) { messaggio('Scrivi il tuo nome in fondo alla pagina («Il tuo nome»), così il teatro sa chi ha confermato.', 'attenzione'); $('chisei').focus(); return }
+    $('conferma').disabled = true
+    messaggio('Controllo le grafiche e confermo…')
+    verificaTutte().then(function (problemi) {
+      if (problemi.length) throw new Error('non entra:' + problemi.join(', '))
+      return salva(true)
+    }).then(function (ok) {
+      if (!ok) throw new Error('salvataggio')
+      return chiamata('grafiche_conferma', { chiave: chiave, la_data: $('data').value, chi: $('chisei').value })
+    }).then(function (r) {
+      mostraConferma('confermata', r.confermata_il, $('chisei').value)
+      messaggio('Fatto: serata confermata. Il teatro è stato avvisato.', 'ok')
+    }).catch(function (e) {
+      $('conferma').disabled = false
+      var t = e && e.message ? e.message : ''
+      messaggio(t.indexOf('non entra:') === 0 ? 'Non confermo: in queste grafiche il testo non entra (' + t.slice(10) + '). Accorcia o togli qualcosa.'
+        : 'Non sono riuscito a confermare. Controlla la connessione e riprova.', 'attenzione')
+    })
+  }
+
   // ---------- messaggi, bozza, salvataggio ----------
   function messaggio(testo, tipo) {
     var m = $('msg')
@@ -315,7 +376,8 @@
       if (!silenzioso) messaggio('Scrivi almeno il giorno e il nome del soprano per salvare.', 'attenzione')
       return Promise.resolve(false)
     }
-    return chiamata('grafiche_salva', { chiave: chiave, la_data: data, i_dati: d, chi: $('chisei').value || null }).then(function () {
+    return chiamata('grafiche_salva', { chiave: chiave, la_data: data, i_dati: d, chi: $('chisei').value || null }).then(function (r) {
+      if (r && r.stato === 'bozza' && statoSerata === 'confermata') mostraConferma('bozza')
       var ora = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
       $('stato-serata').textContent = 'Salvato alle ' + ora + '.'
       if (!silenzioso) messaggio('Serata salvata.', 'ok')
@@ -462,9 +524,10 @@
     caricando = true
     chiamata('grafiche_leggi', { chiave: chiave, la_data: data }).then(function (r) {
       caricando = false
-      if (!r) { quandoDaData(); $('stato-serata').textContent = 'Serata nuova: i campi che vedi restano, cambia quello che serve.'; cambiato(); return }
+      if (!r) { mostraConferma('bozza'); quandoDaData(); $('stato-serata').textContent = 'Serata nuova: i campi che vedi restano, cambia quello che serve.'; cambiato(); return }
       scriviForm(r.dati)
       ultimoSalvato = JSON.stringify(leggiForm())
+      mostraConferma(r.stato, r.confermata_il, r.confermata_da)
       var q = new Date(r.aggiornato_il)
       $('stato-serata').textContent = 'Serata già salvata' + (r.autore ? ' da ' + r.autore : '') + ' (' +
         q.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + ' ' + q.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + ').'
@@ -489,7 +552,11 @@
 
     chiamata('grafiche_elenco', { chiave: chiave }).then(function (lista) {
       var bozza = bozzaLocale(false)
-      if (bozza && bozza.dati) {
+      if (dataDaLink) {
+        $('data').value = dataDaLink
+        scriviForm({})
+        dataCambiata()
+      } else if (bozza && bozza.dati) {
         $('data').value = bozza.data || oggiIso()
         scriviForm(bozza.dati)
         if (bozza.chi && !$('chisei').value) $('chisei').value = bozza.chi
@@ -529,6 +596,7 @@
     $('video-tutti').addEventListener('click', function () { scaricaVideoLista(TABS) })
     $('video-questo').addEventListener('click', function () { scaricaVideoLista([tabAttuale()]) })
     $('salva').addEventListener('click', function () { salva(false) })
+    $('conferma').addEventListener('click', conferma)
   }
 
   avvia()
