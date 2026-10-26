@@ -12,6 +12,7 @@
   var OMBRA_PROG = { dx: 11, dy: 7, blur: 14, a: 0.92 }
   var OMBRA_TITOLO = { dx: 4, dy: 2, blur: 16, a: 0.49 }
   var OMBRA_LEDWALL = { dx: 16, dy: 11, blur: 20, a: 0.94 }
+  var OMBRA_ARTISTI_A = { dx: 10, dy: 9, blur: 12, a: 0.88 }
   var OMBRA_ARTISTI_B = { dx: 8.5, dy: 7.7, blur: 10, a: 0.88 }
   var OMBRA_WIDE = { dx: 9, dy: 7, blur: 10, a: 0.9 }
   var K_LEDWALL = 1.4052
@@ -148,12 +149,16 @@
         'titolo:t2': { tipo: 'macchina', t0: 1.15, durata: 0.85, sfumo: 0.1 },
       } },
       blocchi: function (d, ctx) {
+        // Nomi a sinistra: la colonna di destra può scendere fino in fondo. Nomi centrati in basso: tutte e due si fermano sopra i nomi.
+        var centro = d.nomi === 'centro'
         var b = programma(d, ctx, { k: 1, ombra: OMBRA_PROG, larghezza: 2160,
-          sx: { left: -31.341, top: 1192.849, width: 1182.828, maxY: 3350 }, dx: { left: 1080, top: 1192.849, width: 1070.438, maxY: 3790 } })
+          sx: { left: -31.341, top: 1192.849, width: 1182.828, maxY: centro ? 3320 : 3350 }, dx: { left: 1080, top: 1192.849, width: 1070.438, maxY: centro ? 3320 : 3790 } })
         return con([
           { nome: 'titolo', nocheck: true, left: -151.737, top: 706.57, width: 2463.473, align: 'center', lh: 1.05, ls: 0, ombra: OMBRA_TITOLO,
             lines: [conStrato(riga('belleza', 283.607, ORO, quando(d).toUpperCase() + '!'), 't1'), conStrato(riga('belleza', 134.311, ORO, d.orario, 0.5, 0.03), 't2')] },
-          nomi(d, ctx, { left: 75.089, top: 3391.616, width: 1183.537, align: 'start', lh: 1.33, ls: 0.026, ombra: OMBRA_ARTISTI_B, size: 91.6827 }),
+          centro
+            ? nomi(d, ctx, { left: 213.188, top: 3374.674, width: 1733.624, align: 'center', lh: 1.4, ls: 0, ombra: OMBRA_ARTISTI_A, size: 107.545 })
+            : nomi(d, ctx, { left: 75.089, top: 3391.616, width: 1183.537, align: 'start', lh: 1.33, ls: 0.026, ombra: OMBRA_ARTISTI_B, size: 91.6827 }),
         ], b)
       },
     },
@@ -162,7 +167,7 @@
       w: 4224, h: 4320, plate: 'plate/ledwall-prog.jpg',
       blocchi: function (d, ctx) {
         var b = programma(d, ctx, { k: K_LEDWALL, ombra: OMBRA_LEDWALL, larghezza: 4224,
-          sx: { left: -144.743, top: 1614.395, width: 2533.003, maxY: 4285 }, dx: { left: 2018.655, top: 1662.463, width: 2361.345, maxY: 4285 } })
+          sx: { left: -144.743, top: 1614.395, width: 2533.003, maxY: 4255 }, dx: { left: 2018.655, top: 1662.463, width: 2361.345, maxY: 4255 } })
         return con([
           nomi(d, ctx, { left: 974.508, top: 988.66, width: 2274.984, align: 'center', lh: 1.4, ls: 0, size: 141.1277 }),
         ], b)

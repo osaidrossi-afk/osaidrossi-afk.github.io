@@ -203,7 +203,7 @@
   function leggiForm() {
     return {
       orario: $('orario').value, quando: $('quando').value, soprano: $('soprano').value, ruolo2: $('ruolo2').value, voce2: $('voce2').value,
-      pianista: $('pianista').value, voci: leggiVoci(),
+      pianista: $('pianista').value, nomi: $('nomi').value, voci: leggiVoci(),
     }
   }
 
@@ -213,6 +213,7 @@
     $('ruolo2').value = ['Tenor', 'Baritone', 'Bass-baritone'].indexOf(d.ruolo2) >= 0 ? d.ruolo2 : 'Tenor'
     $('voce2').value = d.voce2 || ''
     $('pianista').value = d.pianista || ''
+    $('nomi').value = d.nomi === 'centro' ? 'centro' : 'sinistra'
     $('quando').value = d.quando === 'Tomorrow' ? 'Tomorrow' : 'Tonight'
     scriviVoci(Array.isArray(d.voci) && d.voci.length ? d.voci : vociIniziali())
   }
@@ -227,7 +228,7 @@
   function perDisegno(d) {
     return {
       orario: String(d.orario || '').trim(), quando: d.quando, soprano: String(d.soprano || '').trim(), ruolo2: d.ruolo2, voce2: String(d.voce2 || '').trim(),
-      pianista: String(d.pianista || '').trim(),
+      pianista: String(d.pianista || '').trim(), nomi: d.nomi,
       voci: d.voci.filter(function (v) { return v.tipo !== 'brano' || String(v.titolo || '').trim() }),
     }
   }
