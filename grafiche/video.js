@@ -112,12 +112,28 @@
           var t = Math.min(i / FPS, tempo.fine)
           // Dopo l'entrata l'immagine non cambia più: si riusa l'ultimo fotogramma già composto.
           var comporre = i <= ultimoDiverso || !fermo
-          return (comporre ? vaiA(sfondo, Math.min(t + 0.5 / FPS, sfondo.duration - 0.001)) : Promise.resolve()).then(function () {
+          // Nello sfondo di Canva alcuni elementi (es. «They said opera was boring») hanno anche un'animazione di USCITA: l'immagine si ferma
+          // quindi un attimo prima (`congela`), mentre gli elementi che entrano più tardi (QR, «GET YOUR TICKETS NOW») si prendono dal
+          // fotogramma finale, dentro i riquadri `tardive`.
+          var tBase = Math.min(t, tempo.congela || tempo.fine)
+          var tTardi = Math.min(t, tempo.fine)
+          var conTardive = comporre && tempo.congela && tTardi > tBase + 0.001
+          return (comporre ? vaiA(sfondo, Math.min(tBase + 0.5 / FPS, sfondo.duration - 0.001)) : Promise.resolve()).then(function () {
             if (comporre) {
-            ctx.setTransform(1, 0, 0, 1, 0, 0)
-            ctx.globalAlpha = 1
-            ctx.filter = 'none'
-            ctx.drawImage(sfondo, 0, 0, W, H)
+              ctx.setTransform(1, 0, 0, 1, 0, 0)
+              ctx.globalAlpha = 1
+              ctx.filter = 'none'
+              ctx.drawImage(sfondo, 0, 0, W, H)
+            }
+            if (!conTardive) return
+            return vaiA(sfondo, Math.min(tTardi + 0.5 / FPS, sfondo.duration - 0.001)).then(function () {
+              ;(tempo.tardive || []).forEach(function (r) {
+                var x = Math.round(r.x * k), y = Math.round(r.y * k), w = Math.round(r.w * k), h = Math.round(r.h * k)
+                ctx.drawImage(sfondo, x, y, w, h, x, y, w, h)
+              })
+            })
+          }).then(function () {
+            if (comporre) {
             elenco.forEach(function (s) {
               var an = animazioni[s.nome] || { tipo: 'statico' }
               var w = s.x1 - s.x0, h = s.y1 - s.y0

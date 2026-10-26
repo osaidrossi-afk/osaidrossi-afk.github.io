@@ -23,6 +23,9 @@
 
   // Il video dura 15 secondi: l'animazione di ENTRATA come in Canva (5 s), poi l'immagine resta ferma. Niente uscite.
   var TEMPO = { durata: 15, fine: 4.97 }
+  // Esterni · nomi: nello sfondo di Canva la scritta «They said opera was boring» esce a 4,45 s, mentre il QR e «GET YOUR TICKETS NOW»
+  // finiscono di entrare dopo: si ferma tutto a 4,3 s e QR e biglietti si prendono dal fotogramma finale.
+  var TEMPO_NOMI = { durata: 15, fine: 4.97, congela: 4.3, tardive: [{ x: 820, y: 3130, w: 520, h: 520 }, { x: 480, y: 3655, w: 1200, h: 130 }] }
 
   function riga(f, size, color, t, lh, ls) {
     var r = { run: { t: t, f: f, size: size, color: color } }
@@ -129,7 +132,7 @@
     // Schermi esterni, verticali 2160x3840 — nomi + orario
     'esterni-artisti': {
       w: 2160, h: 3840, plate: 'plate/esterni-artisti.jpg',
-      video: { plate: 'plate/esterni-artisti.mp4', w: 2160, h: 3840, bitrate: 8e6, tempo: TEMPO, anim: {
+      video: { plate: 'plate/esterni-artisti.mp4', w: 2160, h: 3840, bitrate: 8e6, tempo: TEMPO_NOMI, anim: {
         'nomi degli artisti': { tipo: 'dissolvenza', alfa: [[0, 0], [0.5, 0], [2.0, 1]], sfoca: SFOCA_NOMI },
         'orario': { tipo: 'dissolvenza', alfa: [[0, 0], [0.7, 0], [3.4, 1]], sfoca: SFOCA_ORARIO },
       } },
