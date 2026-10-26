@@ -414,12 +414,7 @@
       return new Promise(function (ok, ko) {
         canvas.toBlob(function (blob) {
           if (!blob) { ko(new Error('troppo grande')); return }
-          var a = document.createElement('a')
-          a.href = URL.createObjectURL(blob)
-          a.download = 'serata-' + ($('data').value || oggiIso()) + '-' + tab.file + '.png'
-          document.body.appendChild(a)
-          a.click()
-          setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); ok() }, 1500)
+          ok({ blob: blob, nome: 'serata-' + ($('data').value || oggiIso()) + '-' + tab.file + '.png' })
         }, 'image/png')
       })
     })
@@ -435,23 +430,28 @@
     messaggio('Preparo ' + (lista.length === 1 ? 'la grafica' : lista.length + ' grafiche') + ' in alta qualità… ci vuole un po’.')
     var errori = []
     lista.reduce(function (p, t) {
-      return p.then(function () { return scarica(t) }).catch(function (e) { errori.push(t.nome + (e && e.message === 'non entra' ? ' (il testo non entra: accorcia o togli brani)' : '')) })
+      return p.then(function () { return scarica(t) }).then(function (f) { mostraPronto(f.blob, f.nome) }).catch(function (e) { errori.push(t.nome + (e && e.message === 'non entra' ? ' (il testo non entra: accorcia o togli brani)' : '')) })
     }, Promise.resolve()).then(function () {
       $('scarica').disabled = $('scarica-questa').disabled = false
       if (errori.length) messaggio('Non scaricate: ' + errori.join('; ') + '. Sul telefono le più grandi (il ledwall) possono non riuscire: aprile dal computer del teatro.', 'attenzione')
-      else messaggio('Fatto: trovi ' + lista.length + (lista.length === 1 ? ' file PNG' : ' file PNG') + ' tra i download.', 'ok')
+      else messaggio('Pronte: tocca ogni pulsante qui sotto per salvare il file sul computer.', 'ok')
       salva(true)
     })
   }
 
   // ---------- video (MP4) ----------
-  function scaricaFile(blob, nome) {
-    var a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
+  // Il file pronto resta come pulsante da toccare: il browser lo salva solo se a chiederlo è un tocco vero (dopo un minuto di lavoro
+  // un salvataggio «automatico» viene bloccato in silenzio).
+  var pronti = {}
+  function mostraPronto(blob, nome) {
+    if (pronti[nome]) { URL.revokeObjectURL(pronti[nome].url); pronti[nome].a.remove() }
+    var url = URL.createObjectURL(blob)
+    var mb = Math.max(1, Math.round(blob.size / 1048576))
+    var a = el('a', 'btn primario', 'Salva ' + nome + ' (' + mb + ' MB)')
+    a.href = url
     a.download = nome
-    document.body.appendChild(a)
-    a.click()
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove() }, 1500)
+    $('pronti').appendChild(a)
+    pronti[nome] = { url: url, a: a }
   }
 
   function scaricaVideo(tab, avanza) {
@@ -463,7 +463,7 @@
       var g = prova.grafiche
       if (g.problemi.length || g.scala < g.minimo) throw new Error('non entra')
       return window.GRAFICHE_VIDEO.creaVideo(m, d, { onProgresso: avanza })
-    }).then(function (blob) { scaricaFile(blob, 'serata-' + ($('data').value || oggiIso()) + '-' + tab.file + '.mp4') })
+    }).then(function (blob) { mostraPronto(blob, 'serata-' + ($('data').value || oggiIso()) + '-' + tab.file + '.mp4') })
   }
 
   function scaricaVideoLista(lista) {
@@ -488,7 +488,7 @@
       barra.hidden = true
       $('video-tutti').disabled = $('video-questo').disabled = false
       if (errori.length) messaggio('Video non riusciti: ' + errori.join('; ') + '.', 'attenzione')
-      else messaggio('Fatto: ' + conVideo.length + (conVideo.length === 1 ? ' video MP4 tra i download.' : ' video MP4 tra i download.'), 'ok')
+      else messaggio('Pronti: tocca ogni pulsante qui sotto per salvare il video sul computer.', 'ok')
       salva(true)
     })
   }
