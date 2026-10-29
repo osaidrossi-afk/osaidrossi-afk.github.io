@@ -1,1 +1,0 @@
-import{u as e}from"./messaggi-CwVfXeoi.js";var t=[`concierge`,`mice_hotel`],n=/hotel|albergo|relais|palace/i,r=e=>t.includes(e.verticale??``)||n.test(e.azienda??``),i=t=>[`firenze`,`toscana`].includes(e(t))?`firenze`:`fuori`;export{i as n,r as t};
