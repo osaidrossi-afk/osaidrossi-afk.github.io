@@ -75,11 +75,14 @@
     return { sx: voci.slice(0, i), dx: voci.slice(i + 1) }
   }
 
-  // Larghezza utile di una colonna: il centro resta quello del design, ma il testo non si avvicina a meno di 40 px dal bordo.
+  // Larghezza utile di una colonna: il centro resta quello del design, ma il testo non si avvicina al bordo più del
+  // margine che poi controlla render.js (modello.w * 0.012): stesso margine qui e là, altrimenti il testo può fermarsi
+  // in un punto che sembra entrare ma che il controllo finale rifiuta (successo solo nel tappo ledwall, il più grande).
   function utile(col, larghezza) {
+    var margine = larghezza * 0.012
     var c = col.left + col.width / 2
-    var mezza = Math.min(col.width / 2, c - 40, larghezza - 40 - c)
-    return { left: c - mezza, width: mezza * 2 }
+    var mezza = Math.min(col.width / 2, c - margine, larghezza - margine - c)
+    return { left: c - mezza, width: mezza * 2, margine: margine }
   }
 
   // Nomi degli artisti: se una riga non entra nel riquadro, tutto il blocco si rimpicciolisce (stessi font) finché entra.
@@ -108,9 +111,10 @@
         { nome: 'programma di destra', left: cfg.dx.left, top: cfg.dx.top, width: cfg.dx.width, align: 'center', lh: 1, ls: 0.039, ombra: cfg.ombra, maxY: cfg.dx.maxY,
           lines: testataIntervallo(k).concat(elenco(parti.dx, k)) },
       ]
+      var margine = cfg.larghezza * 0.012
       var entra = blocchi.every(function (b) {
         var r = R.impagina(ctx, b)
-        return r.fine <= b.maxY && (!r.righe.length || (r.xMin >= 0 && r.xMax <= cfg.larghezza))
+        return r.fine <= b.maxY && (!r.righe.length || (r.xMin >= margine && r.xMax <= cfg.larghezza - margine))
       })
       if (entra) break
     }
