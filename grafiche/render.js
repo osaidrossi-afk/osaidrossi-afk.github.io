@@ -4,11 +4,18 @@
 (function (global) {
   // Metriche dei font (ascent/descent in frazione del corpo): servono a posizionare la linea di base come fa Canva.
   var FONT = {
-    belleza: { css: 'Belleza', style: 'normal', asc: 0.928, desc: 0.224, A: 0.946 },
-    allura: { css: 'Allura', style: 'normal', asc: 0.8, desc: 0.45, A: 0.818 },
-    radley: { css: 'Radley', style: 'normal', asc: 0.964, desc: 0.301, A: 0.982 },
-    radleyi: { css: 'Radley', style: 'italic', asc: 0.964, desc: 0.301, A: 0.982 },
+    // Noto Serif (titoli dei brani, ruoli) e Roboto (opere, autori, nomi): gli stessi font dei template di Almagreal.
+    // asc/desc sono le metriche del font; a = dove cade la linea di base in una riga con interlinea 1 (in frazione del corpo, misurato sui template di Canva).
+    // Con interlinea maggiore di 1, circa un sesto dello spazio in più sta sopra il testo (EXTRA): base = alto + (a + EXTRA × (interlinea − 1)) × corpo.
+    serifb: { css: 'Noto Serif', style: 'normal', weight: 700, asc: 1.069, desc: 0.293, a: 0.95 },
+    serifi: { css: 'Noto Serif', style: 'italic', weight: 400, asc: 1.069, desc: 0.293, a: 0.95 },
+    sansb: { css: 'Roboto', style: 'normal', weight: 700, asc: 0.928, desc: 0.244, a: 0.893 },
+    sans: { css: 'Roboto', style: 'normal', weight: 400, asc: 0.928, desc: 0.244, a: 0.893 },
+    sansi: { css: 'Roboto', style: 'italic', weight: 400, asc: 0.928, desc: 0.244, a: 0.893 },
+    sansbi: { css: 'Roboto', style: 'italic', weight: 700, asc: 0.928, desc: 0.244, a: 0.893 },
   }
+
+  var EXTRA = 0.15
 
   var haLetterSpacing = null
   function supportaLetterSpacing(ctx) {
@@ -18,7 +25,7 @@
 
   function impostaFont(ctx, run, ls) {
     var f = FONT[run.f]
-    ctx.font = f.style + ' ' + run.size + 'px "' + f.css + '"'
+    ctx.font = f.style + ' ' + f.weight + ' ' + run.size + 'px "' + f.css + '"'
     if (global.GRAFICHE_KERN && 'fontKerning' in ctx) ctx.fontKerning = global.GRAFICHE_KERN
     if (supportaLetterSpacing(ctx)) ctx.letterSpacing = (ls || 0) * run.size + 'px'
   }
@@ -31,19 +38,21 @@
     return w
   }
 
-  // Va a capo come Canva: parola per parola, quando la riga supera la larghezza del riquadro.
+  // Va a capo come Canva: parola per parola, quando la riga supera la larghezza del riquadro (e agli «a capo» scritti a mano).
   function righe(ctx, run, larg, ls) {
-    var parole = String(run.t).split(' ')
     var out = []
-    var corrente = ''
-    parole.forEach(function (p) {
-      var prova = corrente ? corrente + ' ' + p : p
-      if (corrente && larghezza(ctx, run, prova, ls) > larg) {
-        out.push(corrente)
-        corrente = p
-      } else corrente = prova
+    String(run.t).split('\n').forEach(function (paragrafo) {
+      var parole = paragrafo.split(' ')
+      var corrente = ''
+      parole.forEach(function (p) {
+        var prova = corrente ? corrente + ' ' + p : p
+        if (corrente && larghezza(ctx, run, prova, ls) > larg) {
+          out.push(corrente)
+          corrente = p
+        } else corrente = prova
+      })
+      out.push(corrente)
     })
-    out.push(corrente)
     return out
   }
 
@@ -64,9 +73,10 @@
     }
   }
 
-  // Un riquadro di testo: {left, top, width, align, ls, lh, lines:[{run:{t,f,size,color}, lh?, ls?}]}
-  // Come in Canva: ogni riga occupa «interlinea × corpo» e la sua linea di base sta a «A × corpo» dal bordo alto della riga.
-  // `impagina` calcola dove finisce ogni riga (serve sia per disegnare sia per controllare che tutto entri nella grafica).
+  // Un riquadro di testo: {left, top, width, align, ls, lh, lines:[{run:{t,f,size,color}, lh?, ls?, parts?:[run, run…]}]}
+  // Come in Canva: ogni riga occupa «interlinea × corpo» e la sua linea di base sta a «(a + EXTRA × (interlinea − 1)) × corpo» dal bordo alto della riga.
+  // Una riga può avere più parti con stili diversi sulla stessa linea di base (`parts`, es. «Soprano / » in grassetto e «Soprano» in corsivo):
+  // non vanno a capo da sole. `impagina` calcola dove finisce ogni riga (serve sia per disegnare sia per controllare che tutto entri).
   function impagina(ctx, blk) {
     var cima = blk.top
     var out = []
@@ -76,11 +86,30 @@
       var run = ln.run
       var lh = ln.lh != null ? ln.lh : blk.lh
       var ls = ln.ls != null ? ln.ls : blk.ls || 0
+      if (ln.parts) {
+        var gr = Math.max.apply(null, ln.parts.map(function (p) { return p.size }))
+        var passoP = lh * gr
+        var wTot = 0
+        ln.parts.forEach(function (p) { wTot += larghezza(ctx, p, p.t, ls) })
+        var fPrima = FONT[ln.parts[0].f]
+        var baseP = cima + (fPrima.a + EXTRA * (lh - 1)) * gr
+        cima += passoP
+        var xP = blk.align === 'start' ? blk.left : blk.align === 'end' ? blk.left + blk.width - wTot : blk.left + (blk.width - wTot) / 2
+        ln.parts.forEach(function (p) {
+          var wp = larghezza(ctx, p, p.t, ls)
+          var fp = FONT[p.f]
+          xMin = Math.min(xMin, xP)
+          xMax = Math.max(xMax, xP + wp)
+          out.push({ run: p, testo: p.t, x: xP, base: baseP - (p.rialzo || 0) * gr, ls: ls, w: wp, discesa: fp.desc * p.size, strato: ln.strato || '' })
+          xP += wp
+        })
+        return
+      }
       var passo = lh * run.size
       var f = FONT[run.f]
       var pezzi = run.t ? righe(ctx, run, blk.width, ls) : ['']
       pezzi.forEach(function (testo) {
-        var base = cima + f.A * run.size - (lh < 1 ? ((1 - lh) / 2) * run.size : 0)
+        var base = cima + (f.a + EXTRA * (lh - 1)) * run.size
         cima += passo
         if (!testo) return
         var w = larghezza(ctx, run, testo, ls)
@@ -91,7 +120,7 @@
       })
     })
     var ultimo = out.length ? out[out.length - 1] : null
-    return { righe: out, fine: ultimo ? ultimo.base + ultimo.discesa : blk.top, xMin: xMin, xMax: xMax }
+    return { righe: out, fine: ultimo ? ultimo.base + ultimo.discesa : blk.top, xMin: xMin, xMax: xMax, alto: cima - blk.top }
   }
 
   function disegnaBlocco(ctx, blk) {
@@ -107,26 +136,33 @@
     ctx.shadowOffsetX = ctx.shadowOffsetY = ctx.shadowBlur = 0
   }
 
+  var immagini = {}
   function caricaImmagine(src) {
-    return new Promise(function (ok, ko) {
+    if (immagini[src]) return immagini[src]
+    immagini[src] = new Promise(function (ok, ko) {
       var im = new Image()
       im.onload = function () { ok(im) }
-      im.onerror = function () { ko(new Error('Immagine non trovata: ' + src)) }
+      im.onerror = function () { delete immagini[src]; ko(new Error('Immagine non trovata: ' + src)) }
       im.src = src
     })
+    return immagini[src]
   }
 
+  var fontPronti = null
   function caricaFont() {
+    if (fontPronti) return fontPronti
     var defs = [
-      ['Belleza', 'normal', 'fonts/Belleza-Regular.ttf'],
-      ['Radley', 'normal', 'fonts/Radley-Regular.ttf'],
-      ['Radley', 'italic', 'fonts/Radley-Italic.ttf'],
-      ['Allura', 'normal', 'fonts/Allura-Regular.ttf'],
+      ['Noto Serif', 'normal', 'fonts/NotoSerif.woff2'],
+      ['Noto Serif', 'italic', 'fonts/NotoSerif-Italic.woff2'],
+      ['Roboto', 'normal', 'fonts/Roboto.woff2'],
+      ['Roboto', 'italic', 'fonts/Roboto-Italic.woff2'],
     ]
-    return Promise.all(defs.map(function (d) {
-      var ff = new FontFace(d[0], 'url(' + global.GRAFICHE_BASE + d[2] + ')', { style: d[1] })
+    fontPronti = Promise.all(defs.map(function (d) {
+      // Font variabili: un solo file per tutti i pesi (grassetto compreso).
+      var ff = new FontFace(d[0], 'url(' + global.GRAFICHE_BASE + d[2] + ')', { style: d[1], weight: '100 900' })
       return ff.load().then(function (f) { document.fonts.add(f) })
-    }))
+    })).catch(function (e) { fontPronti = null; throw e })
+    return fontPronti
   }
 
   // Ogni «strato» è una parte di testo animata a sé (un blocco, o una sua parte): lo si disegna su un canvas trasparente
@@ -163,6 +199,42 @@
     })
   }
 
+  // Foto nei riquadri previsti dal template (es. le locandine orizzontali di Almagreal): la foto riempie il riquadro (ritagliata), si può
+  // ingrandire (zoom ≥ 1) e spostare (cx, cy = punto della foto al centro del riquadro, da 0 a 1). Senza foto, un segnaposto grigio.
+  function rettangoloFoto(slot, f) {
+    var iw = f.img.naturalWidth || f.img.width
+    var ih = f.img.naturalHeight || f.img.height
+    var sc = Math.max(slot.w / iw, slot.h / ih) * Math.max(1, f.zoom || 1)
+    var vw = slot.w / sc
+    var vh = slot.h / sc
+    var x0 = Math.min(Math.max((f.cx == null ? 0.5 : f.cx) * iw - vw / 2, 0), iw - vw)
+    var y0 = Math.min(Math.max((f.cy == null ? 0.5 : f.cy) * ih - vh / 2, 0), ih - vh)
+    return { x0: x0, y0: y0, vw: vw, vh: vh, sc: sc, iw: iw, ih: ih }
+  }
+
+  function disegnaFoto(ctx, slots, foto) {
+    slots.forEach(function (slot, i) {
+      var f = foto && foto[i]
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(slot.x, slot.y, slot.w, slot.h)
+      ctx.clip()
+      if (f && f.img) {
+        var r = rettangoloFoto(slot, f)
+        ctx.drawImage(f.img, r.x0, r.y0, r.vw, r.vh, slot.x, slot.y, slot.w, slot.h)
+      } else {
+        ctx.fillStyle = '#c8d1d9'
+        ctx.fillRect(slot.x, slot.y, slot.w, slot.h)
+        ctx.fillStyle = '#4b5563'
+        ctx.font = '700 ' + Math.round(slot.w / 18) + 'px Roboto, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('Scegli una foto', slot.x + slot.w / 2, slot.y + slot.h / 2)
+      }
+      ctx.restore()
+    })
+  }
+
   // Controllo finale: tutto il testo deve stare dentro la grafica (con un margine) e nei limiti di ogni riquadro.
   function controllo(ctx, modello, blocchi) {
     var problemi = []
@@ -188,6 +260,7 @@
       var ctx = canvas.getContext('2d')
       ctx.setTransform(scala, 0, 0, scala, 0, 0)
       if (global.GRAFICHE_SOLO) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, modello.w, modello.h) } else ctx.drawImage(r[1], 0, 0, modello.w, modello.h)
+      if (modello.foto) disegnaFoto(ctx, modello.foto, dati && dati.foto)
       var blocchi = modello.blocchi(dati, ctx)
       blocchi.forEach(function (b) { disegnaBlocco(ctx, b) })
       canvas.grafiche = controllo(ctx, modello, blocchi)
@@ -196,5 +269,5 @@
   }
 
   global.GRAFICHE_BASE = global.GRAFICHE_BASE || 'grafiche/'
-  global.GRAFICHE_RENDER = { caricaFont: caricaFont, caricaImmagine: caricaImmagine, strati: strati, disegna: disegna, disegnaBlocco: disegnaBlocco, impagina: impagina, larghezza: larghezza, FONT: FONT }
+  global.GRAFICHE_RENDER = { caricaFont: caricaFont, caricaImmagine: caricaImmagine, strati: strati, disegna: disegna, disegnaBlocco: disegnaBlocco, rettangoloFoto: rettangoloFoto, impagina: impagina, larghezza: larghezza, FONT: FONT }
 })(window)

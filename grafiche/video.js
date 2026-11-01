@@ -65,7 +65,9 @@
     var R = global.GRAFICHE_RENDER
     var W = spec.w, H = spec.h, k = W / modello.w
 
-    return Promise.all([R.caricaFont(), caricaVideo(global.GRAFICHE_BASE + spec.plate)]).then(function (r) {
+    // Lo sfondo può essere un video animato di Canva oppure (template di Almagreal) un'immagine ferma: in tal caso si anima solo il testo.
+    var daImmagine = /\.(png|jpe?g|webp)$/i.test(spec.plate)
+    return Promise.all([R.caricaFont(), daImmagine ? R.caricaImmagine(global.GRAFICHE_BASE + spec.plate) : caricaVideo(global.GRAFICHE_BASE + spec.plate)]).then(function (r) {
       var sfondo = r[1]
       // Durata totale (15 s): l'animazione di entrata dura quanto lo sfondo di Canva, poi l'ultima immagine resta ferma.
       var tempo = spec.tempo || { durata: sfondo.duration, fine: sfondo.duration - 0.03 }
@@ -118,7 +120,7 @@
           var tBase = Math.min(t, tempo.congela || tempo.fine)
           var tTardi = Math.min(t, tempo.fine)
           var conTardive = comporre && tempo.congela && tTardi > tBase + 0.001
-          return (comporre ? vaiA(sfondo, Math.min(tBase + 0.5 / FPS, sfondo.duration - 0.001)) : Promise.resolve()).then(function () {
+          return (comporre && !daImmagine ? vaiA(sfondo, Math.min(tBase + 0.5 / FPS, sfondo.duration - 0.001)) : Promise.resolve()).then(function () {
             if (comporre) {
               ctx.setTransform(1, 0, 0, 1, 0, 0)
               ctx.globalAlpha = 1

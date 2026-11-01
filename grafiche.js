@@ -21,8 +21,9 @@
   var TABS = [
     { id: 'esterni-artisti', nome: 'Esterni · nomi', file: 'esterni-nomi', modello: function () { return 'esterni-artisti' } },
     { id: 'programma', nome: 'Esterni · programma', file: 'esterni-programma', modello: function () { return 'esterni-programma' } },
-    { id: 'ledwall', nome: 'Ledwall · tappo', file: 'ledwall-tappo', modello: function () { return 'ledwall-programma' } },
+    { id: 'ledwall', nome: 'Ledwall · nomi e programma', file: 'ledwall-tappo', modello: function () { return 'ledwall-programma' } },
     { id: 'interni', nome: 'Interni · nomi', file: 'interni-nomi', modello: function () { return 'wide-artisti' } },
+    { id: 'interni-programma', nome: 'Interni · programma', file: 'interni-programma', modello: function () { return 'wide-programma' } },
   ]
 
   function el(tag, classe, testo) {
@@ -203,17 +204,16 @@
   function leggiForm() {
     return {
       orario: $('orario').value, quando: $('quando').value, soprano: $('soprano').value, ruolo2: $('ruolo2').value, voce2: $('voce2').value,
-      pianista: $('pianista').value, nomi: $('nomi').value, voci: leggiVoci(),
+      pianista: $('pianista').value, nomi: 'sinistra', voci: leggiVoci(),
     }
   }
 
   function scriviForm(d) {
     $('orario').value = d.orario || '20.30'
     $('soprano').value = d.soprano || ''
-    $('ruolo2').value = ['Tenor', 'Baritone', 'Bass-baritone'].indexOf(d.ruolo2) >= 0 ? d.ruolo2 : 'Tenor'
+    $('ruolo2').value = ['Tenor', 'Baritone', 'Bass-baritone', 'Bass', 'Mezzo-soprano', 'Countertenor'].indexOf(d.ruolo2) >= 0 ? d.ruolo2 : 'Tenor'
     $('voce2').value = d.voce2 || ''
     $('pianista').value = d.pianista || ''
-    $('nomi').value = d.nomi === 'centro' ? 'centro' : 'sinistra'
     $('quando').value = d.quando === 'Tomorrow' ? 'Tomorrow' : 'Tonight'
     scriviVoci(Array.isArray(d.voci) && d.voci.length ? d.voci : vociIniziali())
   }
@@ -443,14 +443,14 @@
   // Il file pronto resta come pulsante da toccare: il browser lo salva solo se a chiederlo è un tocco vero (dopo un minuto di lavoro
   // un salvataggio «automatico» viene bloccato in silenzio).
   var pronti = {}
-  function mostraPronto(blob, nome) {
+  function mostraPronto(blob, nome, contenitore) {
     if (pronti[nome]) { URL.revokeObjectURL(pronti[nome].url); pronti[nome].a.remove() }
     var url = URL.createObjectURL(blob)
     var mb = Math.max(1, Math.round(blob.size / 1048576))
     var a = el('a', 'btn primario', 'Salva ' + nome + ' (' + mb + ' MB)')
     a.href = url
     a.download = nome
-    $('pronti').appendChild(a)
+    ;(contenitore || $('pronti')).appendChild(a)
     pronti[nome] = { url: url, a: a }
   }
 
@@ -536,6 +536,183 @@
     }).catch(function () { caricando = false })
   }
 
+  // ---------- locandine con foto ----------
+  // Template orizzontali di Almagreal (monitor): data e ora a sinistra e un riquadro per la foto a destra. La foto resta sul dispositivo
+  // di chi la sceglie: si legge nel browser, non si salva e non si manda da nessuna parte.
+  var LOCANDINE = [
+    { id: 'voci', nome: 'Voci d’Italia', modello: 'locandina-voci', file: 'locandina-voci' },
+    { id: 'btc', nome: 'Florence · Behind the Curtain', modello: 'locandina-btc', file: 'locandina-behind-the-curtain' },
+  ]
+  var MESI = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  var locCorrente = 'voci'
+  var locFoto = {}
+  var locTesto = {}
+  var locQuadro = false
+  var locGettone = 0
+  var locTrascina = null
+
+  function locAttuale() { return LOCANDINE.filter(function (l) { return l.id === locCorrente })[0] }
+
+  function ordinale(n) {
+    if (n % 100 >= 11 && n % 100 <= 13) return 'th'
+    return n % 10 === 1 ? 'st' : n % 10 === 2 ? 'nd' : n % 10 === 3 ? 'rd' : 'th'
+  }
+
+  // «November 6th - 8:30pm» dal giorno e dall’orario della serata (per Behind the Curtain: gli orari di tutti i giorni, dalle 10 alle 15).
+  function locTestoPredefinito(id) {
+    var data = $('data').value
+    if (!data) return ''
+    var p = data.split('-')
+    var g = parseInt(p[2], 10)
+    var base = MESI[parseInt(p[1], 10) - 1] + ' ' + g + ordinale(g) + ' - '
+    if (id === 'btc') return base + '10:00am - 3:00pm'
+    var o = String($('orario').value || '').replace(',', '.').split('.')
+    var h = parseInt(o[0], 10)
+    if (isNaN(h)) return base.slice(0, -3)
+    var mm = String(o[1] || '00').padStart(2, '0').slice(0, 2)
+    return base + (h % 12 === 0 ? 12 : h % 12) + ':' + mm + (h >= 12 ? 'pm' : 'am')
+  }
+
+  function locTestoDi(id) { return locTesto[id] != null ? locTesto[id] : locTestoPredefinito(id) }
+
+  function locAggiornaCampo() {
+    var l = locAttuale()
+    $('loc-testo').value = locTestoDi(l.id)
+    var f = locFoto[l.id]
+    $('loc-zoom').value = f ? f.zoom : 1
+  }
+
+  function locMsg(testo, tipo) {
+    var m = $('loc-msg')
+    m.hidden = !testo
+    m.textContent = testo || ''
+    m.className = 'msg' + (tipo ? ' ' + tipo : '')
+  }
+
+  function locDati() { return { testoData: locTestoDi(locCorrente), foto: [locFoto[locCorrente] || null] } }
+
+  function locDisegna() {
+    var l = locAttuale()
+    var m = window.GRAFICHE_MODELLI[l.modello]
+    var mio = ++locGettone
+    var tmp = document.createElement('canvas')
+    window.GRAFICHE_RENDER.disegna(tmp, m, locDati(), { scala: Math.min(1, 760 / m.w) }).then(function () {
+      if (mio !== locGettone) return
+      var c = $('loc-anteprima')
+      c.width = tmp.width
+      c.height = tmp.height
+      c.getContext('2d').drawImage(tmp, 0, 0)
+      c.setAttribute('aria-label', 'Anteprima della locandina ' + l.nome + ': ' + locTestoDi(l.id))
+    }).catch(function () { locMsg('Non riesco a preparare la locandina. Riprova.', 'attenzione') })
+  }
+
+  // Ridisegna al massimo una volta per fotogramma (trascinando la foto si chiama di continuo).
+  function locPianifica() {
+    if (locQuadro) return
+    locQuadro = true
+    requestAnimationFrame(function () { locQuadro = false; locDisegna() })
+  }
+
+  function locAggiornaTab() {
+    var box = $('tab-loc')
+    box.textContent = ''
+    LOCANDINE.forEach(function (l) {
+      var b = el('button', null, l.nome)
+      b.type = 'button'
+      b.setAttribute('aria-pressed', l.id === locCorrente)
+      b.addEventListener('click', function () {
+        locCorrente = l.id
+        $('loc-foto').value = ''
+        locMsg('')
+        locAggiornaTab()
+        locAggiornaCampo()
+        locDisegna()
+      })
+      box.appendChild(b)
+    })
+  }
+
+  function locScegliFoto(file) {
+    if (!file) return
+    if (String(file.type).indexOf('image/') !== 0) { locMsg('Quel file non è un’immagine. Scegli una foto (JPG o PNG).', 'attenzione'); return }
+    var url = URL.createObjectURL(file)
+    var im = new Image()
+    im.onload = function () {
+      var vecchia = locFoto[locCorrente]
+      if (vecchia) URL.revokeObjectURL(vecchia.url)
+      locFoto[locCorrente] = { img: im, url: url, zoom: 1, cx: 0.5, cy: 0.5 }
+      $('loc-zoom').value = 1
+      locMsg('Foto messa. Trascinala nell’anteprima per spostarla, o usa «Ingrandimento».', 'ok')
+      locDisegna()
+    }
+    im.onerror = function () { URL.revokeObjectURL(url); locMsg('Non riesco ad aprire questa foto. Prova con un’altra.', 'attenzione') }
+    im.src = url
+  }
+
+  function locScarica() {
+    var l = locAttuale()
+    if (!locFoto[l.id]) { locMsg('Scegli prima una foto: senza, nel riquadro resterebbe il segnaposto grigio.', 'attenzione'); return }
+    if (!locTestoDi(l.id).trim()) { locMsg('Scrivi la data e l’ora da mettere sulla locandina.', 'attenzione'); return }
+    $('loc-scarica').disabled = true
+    locMsg('Preparo la locandina in alta qualità…')
+    var canvas = document.createElement('canvas')
+    window.GRAFICHE_RENDER.disegna(canvas, window.GRAFICHE_MODELLI[l.modello], locDati(), { scala: 1 }).then(function () {
+      return new Promise(function (ok, ko) {
+        canvas.toBlob(function (blob) { if (blob) ok(blob); else ko(new Error('troppo grande')) }, 'image/png')
+      })
+    }).then(function (blob) {
+      mostraPronto(blob, l.file + '-' + ($('data').value || oggiIso()) + '.png', $('loc-pronti'))
+      locMsg('Pronta: tocca il pulsante qui sotto per salvare il file.', 'ok')
+    }).catch(function () {
+      locMsg('Non sono riuscito a preparare la locandina. Riprova con una foto più piccola.', 'attenzione')
+    }).then(function () { $('loc-scarica').disabled = false })
+  }
+
+  function locPronte() {
+    var c = $('loc-anteprima')
+    c.addEventListener('pointerdown', function (e) {
+      var f = locFoto[locCorrente]
+      if (!f) return
+      var m = window.GRAFICHE_MODELLI[locAttuale().modello]
+      var r = c.getBoundingClientRect()
+      var k = m.w / r.width
+      var mx = (e.clientX - r.left) * k
+      var my = (e.clientY - r.top) * k
+      var s = m.foto[0]
+      if (mx < s.x || mx > s.x + s.w || my < s.y || my > s.y + s.h) return
+      locTrascina = { x: e.clientX, y: e.clientY, cx: f.cx, cy: f.cy, k: k }
+      try { c.setPointerCapture(e.pointerId) } catch (x) {}
+      c.style.cursor = 'grabbing'
+      e.preventDefault()
+    })
+    c.addEventListener('pointermove', function (e) {
+      if (!locTrascina) return
+      var f = locFoto[locCorrente]
+      var m = window.GRAFICHE_MODELLI[locAttuale().modello]
+      var rc = window.GRAFICHE_RENDER.rettangoloFoto(m.foto[0], f)
+      var dx = (e.clientX - locTrascina.x) * locTrascina.k
+      var dy = (e.clientY - locTrascina.y) * locTrascina.k
+      f.cx = Math.min(1, Math.max(0, locTrascina.cx - dx / (rc.sc * rc.iw)))
+      f.cy = Math.min(1, Math.max(0, locTrascina.cy - dy / (rc.sc * rc.ih)))
+      locPianifica()
+    })
+    function fine() { locTrascina = null; c.style.cursor = '' }
+    c.addEventListener('pointerup', fine)
+    c.addEventListener('pointercancel', fine)
+    $('loc-foto').addEventListener('change', function (e) { locScegliFoto(e.target.files && e.target.files[0]) })
+    $('loc-zoom').addEventListener('input', function (e) {
+      var f = locFoto[locCorrente]
+      if (!f) return
+      f.zoom = parseFloat(e.target.value)
+      locPianifica()
+    })
+    $('loc-testo').addEventListener('input', function (e) { locTesto[locCorrente] = e.target.value; locPianifica() })
+    $('loc-ricalcola').addEventListener('click', function () { delete locTesto[locCorrente]; locAggiornaCampo(); locDisegna() })
+    $('loc-scarica').addEventListener('click', locScarica)
+    locAggiornaTab()
+    locAggiornaCampo()
+  }
+
   // ---------- avvio ----------
   function errore(testo) {
     $('contenuto').hidden = true
@@ -577,18 +754,21 @@
     }).then(function () {
       aggiornaTab()
       anteprima(0)
+      locPronte()
+      locDisegna()
     }).catch(function (e) {
       errore(e && e.message === 'chiave' ? 'Il link non è valido o è stato cambiato. Chiedi a Osaid di rimandartelo.' : 'Non riesco a collegarmi. Controlla la connessione e riapri la pagina.')
     })
 
     document.addEventListener('input', function (e) {
-      if (e.target.id === 'data' || e.target.id === 'incolla') return
+      if (e.target.id === 'data' || e.target.id === 'incolla' || String(e.target.id).indexOf('loc-') === 0) return
+      if (e.target.id === 'orario') { locAggiornaCampo(); locPianifica() }
       if (e.target.id === 'chisei') { try { localStorage.setItem('grafiche-chisei', e.target.value) } catch (x) {} }
       completaDalRepertorio(e)
       cambiato()
     })
-    document.addEventListener('change', function (e) { if (e.target.id === 'data' || e.target.id === 'incolla') return; completaDalRepertorio(e); cambiato() })
-    $('data').addEventListener('change', dataCambiata)
+    document.addEventListener('change', function (e) { if (e.target.id === 'data' || e.target.id === 'incolla' || String(e.target.id).indexOf('loc-') === 0) return; completaDalRepertorio(e); cambiato() })
+    $('data').addEventListener('change', function () { dataCambiata(); locAggiornaCampo(); locPianifica() })
     $('nuovo-brano').addEventListener('click', function () { var v = creaVoce({ tipo: 'brano' }); elenco.appendChild(v); rinumera(); v.querySelector('.titolo').focus(); cambiato() })
     $('nuovo-solo').addEventListener('click', function () { var v = creaVoce({ tipo: 'solo' }); elenco.appendChild(v); cambiato() })
     $('compila').addEventListener('click', compila)

@@ -56,6 +56,8 @@
     .tab button { padding: 8px 12px; font-size: 14px; }
     .anteprima { width: 100%; background: #000; border-radius: 12px; display: block; }
     .anteprima-box { position: relative; min-height: 120px; }
+    #loc-anteprima { touch-action: none; cursor: grab; }
+    input[type="range"] { padding: 6px 0; accent-color: var(--accent); }
     .caricamento { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; pointer-events: none; }
     .azioni { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
     .azioni button { flex: 1 1 200px; }
@@ -80,7 +82,7 @@
     <p class="sopra">Teatro Nazionale Firenze · Voci d'Italia</p>
     <h1>Grafiche della serata</h1>
     <p class="spiega">Scrivi artisti e programma: le grafiche per gli schermi esterni, il ledwall e gli schermi interni si preparano da sole,
-      con la stessa grafica e gli stessi font di sempre. Cambiano solo i nomi e i brani, e il testo si adatta da solo allo spazio.</p>
+      sui template di Almagreal, con gli stessi font. Cambiano solo i nomi e i brani, e il testo si adatta da solo allo spazio.</p>
     <div id="contenuto" hidden>
       <section class="card" aria-labelledby="h-serata">
         <h2 id="h-serata">La serata</h2>
@@ -101,11 +103,9 @@
         <label for="soprano">Soprano</label><input id="soprano" autocomplete="off" />
         <div class="riga">
           <div><label for="ruolo2">Seconda voce</label>
-            <select id="ruolo2"><option>Tenor</option><option>Baritone</option><option>Bass-baritone</option></select></div>
+            <select id="ruolo2"><option value="Tenor">Tenore / Tenor</option><option value="Baritone">Baritono / Baritone</option><option value="Bass-baritone">Basso-baritono / Bass-baritone</option><option value="Bass">Basso / Bass</option><option value="Mezzo-soprano">Mezzosoprano / Mezzo-soprano</option><option value="Countertenor">Controtenore / Countertenor</option></select></div>
           <div><label for="voce2">Nome</label><input id="voce2" autocomplete="off" /></div>
         </div>
-        <label for="nomi">Nomi nel programma degli schermi esterni</label>
-        <select id="nomi"><option value="sinistra">In basso a sinistra</option><option value="centro">Centrati in basso</option></select>
         <label for="pianista">Pianoforte <small>(con M° davanti al nome)</small></label><input id="pianista" autocomplete="off" placeholder="M° nome e cognome" />
       </section>
 
@@ -118,8 +118,8 @@
           <p class="nota">I titoli e le opere restano come sono scritti; i nomi degli autori si abbreviano da soli (nome e cognome → iniziale e cognome).</p>
           <div class="azioni"><button type="button" id="compila">Compila il programma da questo testo</button></div>
         </details>
-        <p class="fisso">Ordina il programma come vuoi: trascina una scheda con ☰, oppure usa le frecce. I pezzi solo per pianoforte si spostano come i brani. Prima dell'intervallo i brani vanno a sinistra,
-          dopo a destra. Quanti brani metti, il testo si ridimensiona da solo (stessi font) finché sta tutto nella grafica.</p>
+        <p class="fisso">Ordina il programma come vuoi: trascina una scheda con ☰, oppure usa le frecce. I pezzi solo per pianoforte si spostano come i brani. Negli schermi esterni i brani prima dell'intervallo
+          vanno a sinistra e dopo a destra; il ledwall (tre colonne) e gli schermi interni (quattro) distribuiscono il programma da soli. Quanti brani metti, il testo si ridimensiona da solo (stessi font) finché sta tutto nella grafica.</p>
         <div id="elenco" aria-label="Programma, in ordine"></div>
         <div class="nuovi">
           <button type="button" id="nuovo-brano">+ Aggiungi un brano</button>
@@ -144,10 +144,10 @@
           <button type="button" id="scarica-questa">Scarica solo questa</button>
           <button type="button" class="primario" id="scarica">Scarica tutte le immagini</button>
         </div>
-        <p class="nota">Il tappo del ledwall è solo un'immagine PNG, grande esattamente come il ledwall (4224 × 4320). Per mandarlo ai tecnici: scarica
-          «Ledwall · tappo» e caricalo su <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer">WeTransfer</a> (si apre in un'altra pagina).</p>
+        <p class="nota">Il tappo del ledwall è solo un'immagine PNG, grande esattamente come il ledwall (4224 × 4320), con i nomi degli artisti e il programma insieme. Per mandarlo ai tecnici: scarica
+          «Ledwall · nomi e programma» e caricalo su <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer">WeTransfer</a> (si apre in un'altra pagina).</p>
         <h3 class="sotto">Video per gli schermi esterni (MP4)</h3>
-        <p class="nota">Durano 15 secondi: l'animazione di entrata di sempre (come in Canva, solo in entrata) e poi l'immagine resta ferma. Si preparano qui,
+        <p class="nota">Durano 15 secondi: i testi compaiono con una dissolvenza e poi l'immagine resta ferma. Si preparano qui,
           nel browser: dal computer, con Chrome o Edge; serve circa un minuto per video. Tieni aperta la pagina.</p>
         <div class="azioni">
           <button type="button" id="video-questo">Video di questa grafica</button>
@@ -160,10 +160,28 @@
         <label for="chisei">Il tuo nome <small>(così si sa chi ha scritto)</small></label>
         <input id="chisei" autocomplete="off" />
       </section>
+
+      <section class="card" aria-labelledby="h-locandine">
+        <h2 id="h-locandine">Locandine con foto</h2>
+        <p class="fisso">I template orizzontali di Almagreal per i monitor hanno un riquadro per una foto, a destra. Scegli la locandina, controlla la data e metti la foto:
+          la foto resta sul tuo dispositivo, non viene caricata da nessuna parte.</p>
+        <div class="tab" id="tab-loc" role="group" aria-label="Quale locandina"></div>
+        <label for="loc-testo">Data e ora scritte sulla locandina <small>(in inglese, come nel template: «November 6th - 8:30pm»)</small></label>
+        <input id="loc-testo" autocomplete="off" />
+        <div class="azioni"><button type="button" id="loc-ricalcola">Riscrivi dal giorno e dall'orario della serata</button></div>
+        <label for="loc-foto">Foto <small>(dal telefono o dal computer)</small></label>
+        <input id="loc-foto" type="file" accept="image/*" />
+        <label for="loc-zoom">Ingrandimento <small>(trascina la foto nell'anteprima per spostarla)</small></label>
+        <input id="loc-zoom" type="range" min="1" max="3" step="0.01" value="1" />
+        <div class="anteprima-box"><canvas id="loc-anteprima" class="anteprima" aria-label="Anteprima della locandina"></canvas></div>
+        <div class="azioni"><button type="button" class="primario" id="loc-scarica">Scarica la locandina (PNG)</button></div>
+        <div id="loc-msg" class="msg" role="status" hidden></div>
+        <div id="loc-pronti" class="pronti" aria-live="polite"></div>
+      </section>
     </div>
     <div id="errore" class="errore" hidden></div>
     <p class="nota">Cosa viene salvato: solo il giorno, l'orario, i nomi degli artisti, il programma e (se lo scrivi) il tuo nome, nel database del Teatro Nazionale Firenze.
-      La pagina non usa cookie né servizi esterni; la bozza che stai scrivendo resta anche nel tuo telefono, per non perderla. Font: Belleza, Radley e Allura (licenza SIL OFL).</p>
+      La pagina non usa cookie né servizi esterni; la bozza che stai scrivendo resta anche nel tuo telefono, per non perderla. Font: Noto Serif e Roboto (licenza SIL OFL).</p>
   </main>
   <script src="/grafiche/render.js"></script>
   <script src="/grafiche/testi.js"></script>
