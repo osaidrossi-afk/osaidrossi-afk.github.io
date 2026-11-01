@@ -57,6 +57,12 @@
     .anteprima { width: 100%; background: #000; border-radius: 12px; display: block; }
     .anteprima-box { position: relative; min-height: 120px; }
     #loc-anteprima { touch-action: none; cursor: grab; }
+    .chip-righe { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+    .chip-righe button { padding: 7px 12px; font-size: 14px; }
+    .raccolta { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; max-height: 330px; overflow: auto; padding: 2px; }
+    .raccolta button { padding: 0; border-radius: 10px; overflow: hidden; aspect-ratio: 1; border: 2px solid transparent; background: var(--campo); }
+    .raccolta button[aria-pressed="true"] { border-color: var(--accent); }
+    .raccolta img { width: 100%; height: 100%; object-fit: cover; display: block; }
     input[type="range"] { padding: 6px 0; accent-color: var(--accent); }
     .caricamento { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; pointer-events: none; }
     .azioni { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
@@ -147,8 +153,8 @@
         <p class="nota">Il tappo del ledwall è solo un'immagine PNG, grande esattamente come il ledwall (4224 × 4320), con i nomi degli artisti e il programma insieme. Per mandarlo ai tecnici: scarica
           «Ledwall · nomi e programma» e caricalo su <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer">WeTransfer</a> (si apre in un'altra pagina).</p>
         <h3 class="sotto">Video per gli schermi esterni (MP4)</h3>
-        <p class="nota">Durano 15 secondi: i testi compaiono con una dissolvenza e poi l'immagine resta ferma. Si preparano qui,
-          nel browser: dal computer, con Chrome o Edge; serve circa un minuto per video. Tieni aperta la pagina.</p>
+        <p class="nota">Durano 15 secondi. Nei primi 7 lo sfondo si assesta piano, le note musicali entrano una a una e i testi arrivano nell'ordine in cui si leggono;
+          poi l'immagine resta ferma. Si preparano qui, nel browser: dal computer, con Chrome o Edge; serve circa un minuto per video. Tieni aperta la pagina.</p>
         <div class="azioni">
           <button type="button" id="video-questo">Video di questa grafica</button>
           <button type="button" class="primario" id="video-tutti">Tutti i video</button>
@@ -162,15 +168,16 @@
       </section>
 
       <section class="card" aria-labelledby="h-locandine">
-        <h2 id="h-locandine">Locandine con foto</h2>
-        <p class="fisso">I template orizzontali di Almagreal per i monitor hanno un riquadro per una foto, a destra. Scegli la locandina, controlla la data e metti la foto:
-          la foto resta sul tuo dispositivo, non viene caricata da nessuna parte.</p>
+        <h2 id="h-locandine">Locandine per gli schermi interni</h2>
+        <p class="fisso">I template orizzontali di Almagreal per i monitor dentro il teatro hanno un riquadro per una foto, a destra (gli schermi esterni, verticali,
+          e il ledwall non hanno foto). Scegli la locandina, controlla la data e scegli una foto dalla raccolta.</p>
         <div class="tab" id="tab-loc" role="group" aria-label="Quale locandina"></div>
         <label for="loc-testo">Data e ora scritte sulla locandina <small>(in inglese, come nel template: «November 6th - 8:30pm»)</small></label>
         <input id="loc-testo" autocomplete="off" />
         <div class="azioni"><button type="button" id="loc-ricalcola">Riscrivi dal giorno e dall'orario della serata</button></div>
-        <label for="loc-foto">Foto <small>(dal telefono o dal computer)</small></label>
-        <input id="loc-foto" type="file" accept="image/*" />
+        <label id="loc-raccolta-titolo">Foto <small>(tocca per sceglierla)</small></label>
+        <div class="chip-righe" id="loc-filtri" role="group" aria-label="Quali foto vedere"></div>
+        <div class="raccolta" id="loc-raccolta" role="group" aria-labelledby="loc-raccolta-titolo"></div>
         <label for="loc-zoom">Ingrandimento <small>(trascina la foto nell'anteprima per spostarla)</small></label>
         <input id="loc-zoom" type="range" min="1" max="3" step="0.01" value="1" />
         <div class="anteprima-box"><canvas id="loc-anteprima" class="anteprima" aria-label="Anteprima della locandina"></canvas></div>
@@ -181,7 +188,7 @@
     </div>
     <div id="errore" class="errore" hidden></div>
     <p class="nota">Cosa viene salvato: solo il giorno, l'orario, i nomi degli artisti, il programma e (se lo scrivi) il tuo nome, nel database del Teatro Nazionale Firenze.
-      La pagina non usa cookie né servizi esterni; la bozza che stai scrivendo resta anche nel tuo telefono, per non perderla. Font: Noto Serif e Roboto (licenza SIL OFL).</p>
+      La pagina non usa cookie né servizi esterni; la bozza che stai scrivendo resta anche nel tuo telefono, per non perderla. Le foto delle locandine vengono dalla raccolta del teatro. Font: Noto Serif e Roboto (licenza SIL OFL).</p>
   </main>
   <script src="/grafiche/render.js"></script>
   <script src="/grafiche/testi.js"></script>
@@ -189,6 +196,7 @@
   <script src="/grafiche/lib/mp4-muxer.js"></script>
   <script src="/grafiche/video.js"></script>
   <script src="/grafiche/repertorio.js"></script>
+  <script src="/grafiche/foto/elenco.js"></script>
   <script src="/grafiche.js"></script>
 </body>
 </html>

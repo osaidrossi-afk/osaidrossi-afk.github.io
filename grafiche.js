@@ -537,8 +537,8 @@
   }
 
   // ---------- locandine con foto ----------
-  // Template orizzontali di Almagreal (monitor): data e ora a sinistra e un riquadro per la foto a destra. La foto resta sul dispositivo
-  // di chi la sceglie: si legge nel browser, non si salva e non si manda da nessuna parte.
+  // Template orizzontali di Almagreal (monitor interni del teatro): data e ora a sinistra e un riquadro per la foto a destra.
+  // Le foto si scelgono dalla raccolta del teatro (grafiche/foto/, elenco in elenco.js); niente caricamento dal dispositivo.
   var LOCANDINE = [
     { id: 'voci', nome: 'Voci d’Italia', modello: 'locandina-voci', file: 'locandina-voci' },
     { id: 'btc', nome: 'Florence · Behind the Curtain', modello: 'locandina-btc', file: 'locandina-behind-the-curtain' },
@@ -550,6 +550,8 @@
   var locQuadro = false
   var locGettone = 0
   var locTrascina = null
+  var locFiltro = 'voci'
+  var CATEGORIE = [['tutte', 'Tutte'], ['voci', 'Voci d’Italia'], ['btc', 'Behind the Curtain'], ['teatro', 'Il teatro']]
 
   function locAttuale() { return LOCANDINE.filter(function (l) { return l.id === locCorrente })[0] }
 
@@ -622,36 +624,62 @@
       b.setAttribute('aria-pressed', l.id === locCorrente)
       b.addEventListener('click', function () {
         locCorrente = l.id
-        $('loc-foto').value = ''
+        locFiltro = l.id === 'btc' ? 'btc' : 'voci'
         locMsg('')
         locAggiornaTab()
         locAggiornaCampo()
+        locRaccolta()
         locDisegna()
       })
       box.appendChild(b)
     })
   }
 
-  function locScegliFoto(file) {
-    if (!file) return
-    if (String(file.type).indexOf('image/') !== 0) { locMsg('Quel file non è un’immagine. Scegli una foto (JPG o PNG).', 'attenzione'); return }
-    var url = URL.createObjectURL(file)
+  function locRaccolta() {
+    var filtri = $('loc-filtri')
+    filtri.textContent = ''
+    CATEGORIE.forEach(function (c) {
+      var b = el('button', null, c[1])
+      b.type = 'button'
+      b.setAttribute('aria-pressed', c[0] === locFiltro)
+      b.addEventListener('click', function () { locFiltro = c[0]; locRaccolta() })
+      filtri.appendChild(b)
+    })
+    var griglia = $('loc-raccolta')
+    griglia.textContent = ''
+    var scelta = locFoto[locCorrente] && locFoto[locCorrente].fotoId
+    ;(window.GRAFICHE_FOTO || []).filter(function (f) { return locFiltro === 'tutte' || f.cat === locFiltro }).forEach(function (f) {
+      var b = el('button')
+      b.type = 'button'
+      b.setAttribute('aria-pressed', f.id === scelta)
+      b.setAttribute('aria-label', f.nome)
+      var im = el('img')
+      im.src = 'grafiche/foto/mini/' + f.id + '.jpg'
+      im.alt = f.nome
+      im.loading = 'lazy'
+      b.appendChild(im)
+      b.addEventListener('click', function () { locScegliFoto(f) })
+      griglia.appendChild(b)
+    })
+  }
+
+  function locScegliFoto(f) {
+    locMsg('Carico la foto…')
     var im = new Image()
     im.onload = function () {
-      var vecchia = locFoto[locCorrente]
-      if (vecchia) URL.revokeObjectURL(vecchia.url)
-      locFoto[locCorrente] = { img: im, url: url, zoom: 1, cx: 0.5, cy: 0.5 }
+      locFoto[locCorrente] = { img: im, fotoId: f.id, zoom: 1, cx: 0.5, cy: 0.5 }
       $('loc-zoom').value = 1
-      locMsg('Foto messa. Trascinala nell’anteprima per spostarla, o usa «Ingrandimento».', 'ok')
+      locMsg('Foto scelta: ' + f.nome + '. Trascinala nell’anteprima per spostarla, o usa «Ingrandimento».', 'ok')
+      locRaccolta()
       locDisegna()
     }
-    im.onerror = function () { URL.revokeObjectURL(url); locMsg('Non riesco ad aprire questa foto. Prova con un’altra.', 'attenzione') }
-    im.src = url
+    im.onerror = function () { locMsg('Non riesco a caricare questa foto. Riprova o scegline un’altra.', 'attenzione') }
+    im.src = 'grafiche/foto/' + f.id + '.jpg'
   }
 
   function locScarica() {
     var l = locAttuale()
-    if (!locFoto[l.id]) { locMsg('Scegli prima una foto: senza, nel riquadro resterebbe il segnaposto grigio.', 'attenzione'); return }
+    if (!locFoto[l.id]) { locMsg('Scegli prima una foto dalla raccolta: senza, nel riquadro resterebbe il segnaposto grigio.', 'attenzione'); return }
     if (!locTestoDi(l.id).trim()) { locMsg('Scrivi la data e l’ora da mettere sulla locandina.', 'attenzione'); return }
     $('loc-scarica').disabled = true
     locMsg('Preparo la locandina in alta qualità…')
@@ -699,7 +727,6 @@
     function fine() { locTrascina = null; c.style.cursor = '' }
     c.addEventListener('pointerup', fine)
     c.addEventListener('pointercancel', fine)
-    $('loc-foto').addEventListener('change', function (e) { locScegliFoto(e.target.files && e.target.files[0]) })
     $('loc-zoom').addEventListener('input', function (e) {
       var f = locFoto[locCorrente]
       if (!f) return
@@ -711,6 +738,7 @@
     $('loc-scarica').addEventListener('click', locScarica)
     locAggiornaTab()
     locAggiornaCampo()
+    locRaccolta()
   }
 
   // ---------- avvio ----------

@@ -1,10 +1,12 @@
-// Video delle grafiche (MP4): lo sfondo animato esportato da Canva (stessa animazione di sempre: logo, zoom, QR…) più i testi
-// della serata che compaiono con le stesse animazioni misurate sui design di Osaid (dissolvenza con sfocatura, scrittura a macchina).
+// Video delle grafiche (MP4) per gli schermi esterni: lo sfondo dei template di Almagreal (fermo) e i testi della serata che entrano con
+// un'animazione d'entrata lenta (dissolvenza, un po' di sfocatura che si schiarisce, una lieve salita); le note musicali dello sfondo
+// entrano una per una; tutta la scena si assesta con un lento zoom indietro. Poi l'immagine resta ferma fino a 15 secondi.
 // Si fa tutto nel browser: fotogramma per fotogramma si compone, si codifica in H.264 (WebCodecs) e si impacchetta in MP4.
 // Serve un browser recente per computer (Chrome o Edge); da telefono le PNG bastano.
 (function (global) {
   var FPS = 30
 
+  // Valore di una curva a punti [[tempo, valore], ...] (interpolazione lineare; fuori dai punti resta il primo o l'ultimo valore).
   function interpola(punti, t) {
     if (!punti || !punti.length) return 1
     if (t <= punti[0][0]) return punti[0][1]
@@ -41,22 +43,9 @@
     })
   }
 
-  // Scrittura a macchina: la parte già scritta è visibile, davanti c'è un bordo sfumato (come le lettere che si accendono).
-  function sfumaMacchina(tmp, c, strato, anim, t, k) {
-    var larg = strato.inkX1 - strato.inkX0
-    var p = (t - anim.t0) / anim.durata
-    var f = anim.sfumo / anim.durata
-    function alfa(u) { return Math.max(0, Math.min(1, (p - u) / f)) }
-    var g = c.createLinearGradient(strato.inkX0, 0, strato.inkX1, 0)
-    var us = [0, p - f, p, 1].map(function (u) { return Math.max(0, Math.min(1, u)) }).sort(function (a, b) { return a - b })
-    us.forEach(function (u) { g.addColorStop(u, 'rgba(0,0,0,' + alfa(u).toFixed(3) + ')') })
-    c.globalCompositeOperation = 'destination-in'
-    c.fillStyle = g
-    c.fillRect(strato.x0, strato.y0, strato.x1 - strato.x0, strato.y1 - strato.y0)
-    c.globalCompositeOperation = 'source-over'
-  }
-
-  // opzioni: {onProgresso(frazione), durata (s, di solito quella dello sfondo)}
+  // opzioni: {onProgresso(frazione), durata (s)}
+  // modello.video = {plate, w, h, bitrate, tempo:{durata, fine}, sfondoColore, camera:{scala}, fondo:{alfa}, livelli:[{src,x,y,w,h,anim:{alfa,scala,rot,dy}}],
+  //                  anim: {strato: {tipo:'dissolvenza', alfa, sfoca, dy}} oppure una funzione (strati) che li calcola}
   function creaVideo(modello, dati, opzioni) {
     opzioni = opzioni || {}
     var spec = modello.video
@@ -64,12 +53,14 @@
     if (!supportato()) return Promise.reject(new Error('Questo browser non sa fare i video: usa Chrome o Edge dal computer'))
     var R = global.GRAFICHE_RENDER
     var W = spec.w, H = spec.h, k = W / modello.w
+    var base = global.GRAFICHE_BASE
 
-    // Lo sfondo può essere un video animato di Canva oppure (template di Almagreal) un'immagine ferma: in tal caso si anima solo il testo.
+    // Lo sfondo può essere un video animato di Canva oppure (template di Almagreal) un'immagine ferma: in tal caso si animano i livelli e i testi.
     var daImmagine = /\.(png|jpe?g|webp)$/i.test(spec.plate)
-    return Promise.all([R.caricaFont(), daImmagine ? R.caricaImmagine(global.GRAFICHE_BASE + spec.plate) : caricaVideo(global.GRAFICHE_BASE + spec.plate)]).then(function (r) {
+    var livelliSrc = (spec.livelli || []).map(function (l) { return R.caricaImmagine(base + l.src) })
+    return Promise.all([R.caricaFont(), daImmagine ? R.caricaImmagine(base + spec.plate) : caricaVideo(base + spec.plate), Promise.all(livelliSrc)]).then(function (r) {
       var sfondo = r[1]
-      // Durata totale (15 s): l'animazione di entrata dura quanto lo sfondo di Canva, poi l'ultima immagine resta ferma.
+      var immaginiLivelli = r[2]
       var tempo = spec.tempo || { durata: sfondo.duration, fine: sfondo.duration - 0.03 }
       var durata = opzioni.durata || tempo.durata
       var frames = Math.round(durata * FPS)
@@ -79,15 +70,13 @@
       cv.width = W
       cv.height = H
       var ctx = cv.getContext('2d')
-      var tmp = document.createElement('canvas')
-      var tc = tmp.getContext('2d')
 
       // strati di testo
       var scratch = document.createElement('canvas').getContext('2d')
       var blocchi = modello.blocchi(dati, scratch)
       var info = blocchi.info
       var elenco = R.strati(scratch, blocchi, W, H, k)
-      var animazioni = spec.anim || {}
+      var animazioni = typeof spec.anim === 'function' ? spec.anim(elenco) : spec.anim || {}
 
       var codec = null
       var configs = ['avc1.640034', 'avc1.640033', 'avc1.64002A', 'avc1.4d0034', 'avc1.42003e']
@@ -95,6 +84,69 @@
         if (i >= configs.length) return Promise.reject(new Error('Il browser non sa codificare il video H.264'))
         var cfg = { codec: configs[i], width: W, height: H, bitrate: spec.bitrate || 10e6, framerate: FPS, avc: { format: 'avc' } }
         return VideoEncoder.isConfigSupported(cfg).then(function (s) { return s.supported ? cfg : scegliCodec(i + 1) }).catch(function () { return scegliCodec(i + 1) })
+      }
+
+      // Un fotogramma: sfondo → livelli (note) → testi, tutto dentro la «macchina da presa» che si assesta lentamente.
+      function componi(t) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.globalAlpha = 1
+        ctx.filter = 'none'
+        ctx.fillStyle = spec.sfondoColore || '#000'
+        ctx.fillRect(0, 0, W, H)
+        var s = spec.camera ? interpola(spec.camera.scala, t) : 1
+        ctx.setTransform(s, 0, 0, s, (1 - s) * W / 2, (1 - s) * H / 2)
+        var a0 = spec.fondo ? interpola(spec.fondo.alfa, t) : 1
+        if (a0 > 0.002) {
+          ctx.globalAlpha = Math.min(1, a0)
+          ctx.drawImage(sfondo, 0, 0, W, H)
+          ctx.globalAlpha = 1
+        }
+        ;(spec.livelli || []).forEach(function (l, i) {
+          var an = l.anim || {}
+          var a = an.alfa ? interpola(an.alfa, t) : 1
+          if (a <= 0.003) return
+          var sc = an.scala ? interpola(an.scala, t) : 1
+          var rot = an.rot ? interpola(an.rot, t) : 0
+          var dy = an.dy ? interpola(an.dy, t) : 0
+          var cx = (l.x + l.w / 2) * k, cy = (l.y + l.h / 2) * k + dy * k
+          ctx.save()
+          ctx.globalAlpha = Math.min(1, a)
+          ctx.translate(cx, cy)
+          ctx.rotate((rot * Math.PI) / 180)
+          ctx.scale(sc, sc)
+          ctx.drawImage(immaginiLivelli[i], (-l.w / 2) * k, (-l.h / 2) * k, l.w * k, l.h * k)
+          ctx.restore()
+        })
+        elenco.forEach(function (st) {
+          var an = animazioni[st.nome] || { tipo: 'statico' }
+          var w = st.x1 - st.x0, h = st.y1 - st.y0
+          if (an.tipo === 'statico') {
+            if (t >= (an.da || 0)) ctx.drawImage(st.canvas, st.x0, st.y0, w, h, st.x0, st.y0, w, h)
+            return
+          }
+          var a = interpola(an.alfa, t)
+          if (a <= 0.003) return
+          var sig = an.sfoca ? interpola(an.sfoca, t) : 0
+          var dy = an.dy ? interpola(an.dy, t) * k : 0
+          ctx.save()
+          ctx.globalAlpha = Math.min(1, a)
+          ctx.filter = sig > 0.4 ? 'blur(' + sig.toFixed(2) + 'px)' : 'none'
+          ctx.drawImage(st.canvas, st.x0, st.y0, w, h, st.x0, st.y0 + dy, w, h)
+          ctx.restore()
+        })
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+      }
+
+      // Per provare l'animazione senza fare il video: restituisce alcuni fotogrammi (ridotti) agli istanti indicati.
+      if (opzioni.soloFotogrammi && daImmagine) {
+        return Promise.resolve(opzioni.soloFotogrammi.map(function (t) {
+          componi(t)
+          var c = document.createElement('canvas')
+          c.width = Math.round(W / 4)
+          c.height = Math.round(H / 4)
+          c.getContext('2d').drawImage(cv, 0, 0, c.width, c.height)
+          return c
+        }))
       }
 
       return scegliCodec(0).then(function (cfg) {
@@ -114,52 +166,8 @@
           var t = Math.min(i / FPS, tempo.fine)
           // Dopo l'entrata l'immagine non cambia più: si riusa l'ultimo fotogramma già composto.
           var comporre = i <= ultimoDiverso || !fermo
-          // Nello sfondo di Canva alcuni elementi (es. «They said opera was boring») hanno anche un'animazione di USCITA: l'immagine si ferma
-          // quindi un attimo prima (`congela`), mentre gli elementi che entrano più tardi (QR, «GET YOUR TICKETS NOW») si prendono dal
-          // fotogramma finale, dentro i riquadri `tardive`.
-          var tBase = Math.min(t, tempo.congela || tempo.fine)
-          var tTardi = Math.min(t, tempo.fine)
-          var conTardive = comporre && tempo.congela && tTardi > tBase + 0.001
-          return (comporre && !daImmagine ? vaiA(sfondo, Math.min(tBase + 0.5 / FPS, sfondo.duration - 0.001)) : Promise.resolve()).then(function () {
-            if (comporre) {
-              ctx.setTransform(1, 0, 0, 1, 0, 0)
-              ctx.globalAlpha = 1
-              ctx.filter = 'none'
-              ctx.drawImage(sfondo, 0, 0, W, H)
-            }
-            if (!conTardive) return
-            return vaiA(sfondo, Math.min(tTardi + 0.5 / FPS, sfondo.duration - 0.001)).then(function () {
-              ;(tempo.tardive || []).forEach(function (r) {
-                var x = Math.round(r.x * k), y = Math.round(r.y * k), w = Math.round(r.w * k), h = Math.round(r.h * k)
-                ctx.drawImage(sfondo, x, y, w, h, x, y, w, h)
-              })
-            })
-          }).then(function () {
-            if (comporre) {
-            elenco.forEach(function (s) {
-              var an = animazioni[s.nome] || { tipo: 'statico' }
-              var w = s.x1 - s.x0, h = s.y1 - s.y0
-              if (an.tipo === 'statico') {
-                if (t >= (an.da || 0)) ctx.drawImage(s.canvas, s.x0, s.y0, w, h, s.x0, s.y0, w, h)
-              } else if (an.tipo === 'dissolvenza') {
-                var a = interpola(an.alfa, t)
-                if (a <= 0.003) return
-                var sig = interpola(an.sfoca, t)
-                ctx.save()
-                ctx.globalAlpha = Math.min(1, a)
-                ctx.filter = sig > 0.4 ? 'blur(' + sig.toFixed(2) + 'px)' : 'none'
-                ctx.drawImage(s.canvas, s.x0, s.y0, w, h, s.x0, s.y0, w, h)
-                ctx.restore()
-              } else if (an.tipo === 'macchina') {
-                if (t <= an.t0) return
-                tmp.width = W
-                tmp.height = H
-                tc.drawImage(s.canvas, s.x0, s.y0, w, h, s.x0, s.y0, w, h)
-                sfumaMacchina(tmp, tc, s, an, t, k)
-                ctx.drawImage(tmp, s.x0, s.y0, w, h, s.x0, s.y0, w, h)
-              }
-            })
-            }
+          return (comporre && !daImmagine ? vaiA(sfondo, Math.min(t + 0.5 / FPS, sfondo.duration - 0.001)) : Promise.resolve()).then(function () {
+            if (comporre) componi(t)
             if (i >= ultimoDiverso) fermo = true
             var vf = new VideoFrame(cv, { timestamp: Math.round((i * 1e6) / FPS), duration: Math.round(1e6 / FPS) })
             enc.encode(vf, { keyFrame: i % (FPS * 2) === 0 })
@@ -180,5 +188,5 @@
     })
   }
 
-  global.GRAFICHE_VIDEO = { creaVideo: creaVideo, supportato: supportato }
+  global.GRAFICHE_VIDEO = { creaVideo: creaVideo, supportato: supportato, interpola: interpola }
 })(window)
