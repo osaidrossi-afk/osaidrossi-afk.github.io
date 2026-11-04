@@ -216,7 +216,7 @@
   var K = 2 // i template esterni e interni sono 1080×1920 e 1920×1080: si disegna al doppio (2160×3840 e 3840×2160)
   var ESTERNI = { titolo: 40 * K, piccolo: 28 * K }
   var INTERNI = { titolo: 36.8919 * K, piccolo: 25.8245 * K }
-  var LEDWALL = { titolo: 108, piccolo: 76, vuoto: 0.55 } // un po' più grandi del template (96 e 67): sul ledwall si leggono da lontano
+  var LEDWALL = { titolo: 108, piccolo: 76, vuoto: 1.1 } // un po' più grandi del template (96 e 67): sul ledwall si leggono da lontano. Vuoto largo: più spazio tra un brano e l'altro (Osaid, 4/11/2026)
 
   var MODELLI = {
     // Schermi esterni, verticali 2160x3840 — nomi
@@ -278,11 +278,12 @@
         var R = global.GRAFICHE_RENDER
         var lista = artisti(d)
         // Gli artisti, uno per riga (ruolo bilingue in bianco + nome in rosso sulla stessa linea): sul ledwall si leggono da lontano, quindi grandi.
+        // Il nome ha più importanza del ruolo e dei titoli dei brani nel programma sotto: è il testo più grande di tutta la grafica (Osaid, 4/11/2026).
         // Tutti con lo stesso corpo, ridotto solo se la riga più lunga non entra nella larghezza disponibile.
-        var larg = 2900, ruolo = 132, nome = 120, k = 1, massima = 0
+        var larg = 2650, ruolo = 100, nome = 155, k = 1, massima = 0
         function parti(a, kk) {
           return [{ t: a.it + ' / ', f: 'serifb', size: ruolo * kk, color: BIANCO }, { t: a.en, f: 'serifi', size: ruolo * kk, color: BIANCO },
-            { t: '   ' + a.nome, f: 'sansb', size: nome * kk, color: ROSSO }]
+            { t: '    ' + a.nome, f: 'sansb', size: nome * kk, color: ROSSO }]
         }
         lista.forEach(function (a) {
           var w = 0
@@ -291,13 +292,13 @@
         })
         if (massima > larg) k = Math.max(0.6, larg / massima)
         var blocchiNomi = lista.map(function (a, i) {
-          return { nome: 'nomi:' + (i + 1), left: 2112 - larg / 2, top: 1235 + i * 146 * k, width: larg, align: 'center', lh: 1.13, ls: 0.026, lines: [riga2(parti(a, k))] }
+          return { nome: 'nomi:' + (i + 1), left: 2112 - larg / 2, top: 1235 + i * 190 * k, width: larg, align: 'center', lh: 1.13, ls: 0.026, lines: [riga2(parti(a, k))] }
         })
         var b = programma(d, ctx, { larghezza: 4224, st: LEDWALL, ls: 0.039, align: 'center', modo: 'flusso',
           nomi: ['programma 1', 'programma 2', 'programma 3'],
-          colonne: [{ left: 692.0318, width: 958.972, top: 1930, maxY: 3230 }, { left: 1651.0038, width: 958.972, top: 1930, maxY: 3470 }, { left: 2609.9759, width: 921.9923, top: 1930, maxY: 3230 }] })
+          colonne: [{ left: 692.0318, width: 958.972, top: 2050, maxY: 3230 }, { left: 1651.0038, width: 958.972, top: 2050, maxY: 3470 }, { left: 2609.9759, width: 921.9923, top: 2050, maxY: 3230 }] })
         return con(blocchiNomi.concat([
-          { nome: 'titolo', left: 1112, top: 1745, width: 2000, align: 'center', lh: 1.05, ls: 0, lines: [riga('sansb', 112, BIANCO, 'CONCERT PROGRAM')] },
+          { nome: 'titolo', left: 1112, top: 1880, width: 2000, align: 'center', lh: 1.05, ls: 0, lines: [riga('sansb', 112, BIANCO, 'CONCERT PROGRAM')] },
         ]), b)
       },
     },
