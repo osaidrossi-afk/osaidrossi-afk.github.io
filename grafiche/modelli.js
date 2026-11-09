@@ -33,9 +33,10 @@
   function conStrato(r, nome) { r.strato = nome; return r }
 
   function artisti(d) {
+    var r1 = d.ruolo1 === 'Mezzo-soprano' ? 'Mezzo-soprano' : 'Soprano'
     var r2 = d.ruolo2 || 'Baritone'
     return [
-      { it: 'Soprano', en: 'Soprano', nome: d.soprano },
+      { it: RUOLI[r1] || r1, en: r1, nome: d.soprano },
       { it: d.ruoloIt || RUOLI[r2] || r2, en: r2, nome: d.voce2 },
       { it: 'Piano', en: 'Piano', nome: d.pianista },
     ]

@@ -94,8 +94,8 @@
         <details id="guida">
           <summary id="h-guida">Come funziona questa pagina</summary>
           <p class="fisso">Si scrive una volta sola e la pagina prepara da sola tutte le grafiche della serata: schermi esterni, ledwall e schermi interni.</p>
-          <p class="fisso"><strong>1. La serata</strong> — il giorno e l'orario di Voci d'Italia. «Titolo sulle grafiche» è quasi sempre «Stasera»: scegli «Domani» solo se la grafica va messa online il giorno prima.</p>
-          <p class="fisso"><strong>2. Artisti</strong> — nome del soprano, poi la seconda voce (scegli il ruolo dal menu: uomini o donne) e il nome, e il pianista (con «M°» davanti, es. «M° Mario Rossi»).</p>
+          <p class="fisso"><strong>1. La serata</strong> — il giorno e l'orario di Voci d'Italia. «Titolo sulle grafiche» è quasi sempre «Stasera»: scegli «Domani» solo se la grafica va messa online il giorno prima. Questa pagina è sempre la stessa: con «Vedi una serata già fatta» riapri una data passata, con «+ Prepara la prossima serata» torni a scrivere quella nuova.</p>
+          <p class="fisso"><strong>2. Artisti</strong> — prima voce (scegli soprano o mezzosoprano) e il nome, poi la seconda voce (scegli il ruolo dal menu) e il nome, e il pianista (con «M°» davanti, es. «M° Mario Rossi»).</p>
           <p class="fisso"><strong>3. Programma</strong> — un brano alla volta con «+ Aggiungi un brano» (titolo, opera, autore), oppure incolla tutto il testo da WhatsApp con «Incolla il programma» e si compila da solo. Si possono riordinare le schede trascinandole dal ☰ o con le frecce.</p>
           <p class="fisso"><strong>4. Anteprima</strong> — nella sezione «Come vengono» si vede come verrà ogni grafica: usa le schede in alto per passare da una all'altra (esterni, ledwall, interni).</p>
           <p class="fisso"><strong>5. Quando tutto è a posto</strong> — scrivi il tuo nome in fondo alla pagina e premi «Conferma: è tutto pronto»: il teatro riceve un avviso che le grafiche sono pronte.</p>
@@ -114,25 +114,29 @@
           <option value="Tomorrow">Domani — «Tomorrow» (grafica messa il giorno prima)</option>
         </select>
         <p class="stato" id="stato-serata"></p>
+        <label for="storico">Vedi una serata già fatta</label>
+        <select id="storico"><option value="">— scegli una data —</option></select>
+        <div class="azioni"><button type="button" id="nuova-serata">+ Prepara la prossima serata</button></div>
       </section>
 
       <section class="card" aria-labelledby="h-artisti">
         <h2 id="h-artisti">Artisti</h2>
-        <label for="soprano">Soprano</label><input id="soprano" autocomplete="off" />
+        <div class="riga">
+          <div><label for="ruolo1">Prima voce</label>
+            <select id="ruolo1">
+              <option value="Soprano">Soprano</option>
+              <option value="Mezzo-soprano">Mezzosoprano</option>
+            </select></div>
+          <div><label for="soprano">Nome</label><input id="soprano" autocomplete="off" /></div>
+        </div>
         <div class="riga">
           <div><label for="ruolo2">Seconda voce</label>
             <select id="ruolo2">
-              <optgroup label="Uomini">
-                <option value="Tenor">Tenore</option>
-                <option value="Baritone">Baritono</option>
-                <option value="Bass-baritone">Basso-baritono</option>
-                <option value="Bass">Basso</option>
-                <option value="Countertenor">Controtenore</option>
-              </optgroup>
-              <optgroup label="Donne">
-                <option value="Soprano">Soprano</option>
-                <option value="Mezzo-soprano">Mezzosoprano</option>
-              </optgroup>
+              <option value="Tenor">Tenore</option>
+              <option value="Baritone">Baritono</option>
+              <option value="Bass-baritone">Basso-baritono</option>
+              <option value="Bass">Basso</option>
+              <option value="Countertenor">Controtenore</option>
             </select></div>
           <div><label for="voce2">Nome</label><input id="voce2" autocomplete="off" /></div>
         </div>

@@ -204,15 +204,16 @@
   // ---------- modulo ----------
   function leggiForm() {
     return {
-      orario: $('orario').value, quando: $('quando').value, soprano: $('soprano').value, ruolo2: $('ruolo2').value, voce2: $('voce2').value,
+      orario: $('orario').value, quando: $('quando').value, ruolo1: $('ruolo1').value, soprano: $('soprano').value, ruolo2: $('ruolo2').value, voce2: $('voce2').value,
       pianista: $('pianista').value, nomi: 'sinistra', voci: leggiVoci(),
     }
   }
 
   function scriviForm(d) {
     $('orario').value = d.orario || '20.30'
+    $('ruolo1').value = d.ruolo1 === 'Mezzo-soprano' ? 'Mezzo-soprano' : 'Soprano'
     $('soprano').value = d.soprano || ''
-    $('ruolo2').value = ['Tenor', 'Baritone', 'Bass-baritone', 'Bass', 'Mezzo-soprano', 'Countertenor'].indexOf(d.ruolo2) >= 0 ? d.ruolo2 : 'Tenor'
+    $('ruolo2').value = ['Tenor', 'Baritone', 'Bass-baritone', 'Bass', 'Countertenor'].indexOf(d.ruolo2) >= 0 ? d.ruolo2 : 'Tenor'
     $('voce2').value = d.voce2 || ''
     $('pianista').value = d.pianista || ''
     $('quando').value = d.quando === 'Tomorrow' ? 'Tomorrow' : 'Tonight'
@@ -228,7 +229,7 @@
   // I brani senza titolo non si disegnano (restano nell'elenco per essere riempiti).
   function perDisegno(d) {
     return {
-      orario: String(d.orario || '').trim(), quando: d.quando, soprano: String(d.soprano || '').trim(), ruolo2: d.ruolo2, voce2: String(d.voce2 || '').trim(),
+      orario: String(d.orario || '').trim(), quando: d.quando, ruolo1: d.ruolo1, soprano: String(d.soprano || '').trim(), ruolo2: d.ruolo2, voce2: String(d.voce2 || '').trim(),
       pianista: String(d.pianista || '').trim(), nomi: d.nomi,
       voci: d.voci.filter(function (v) { return v.tipo !== 'brano' || String(v.titolo || '').trim() }),
     }
@@ -287,7 +288,7 @@
         canvas.width = tmp.width
         canvas.height = tmp.height
         canvas.getContext('2d').drawImage(tmp, 0, 0)
-        canvas.setAttribute('aria-label', 'Anteprima: ' + tab.nome + '. Soprano ' + d.soprano + ', ' + d.ruolo2 + ' ' + d.voce2 + ', pianoforte ' + d.pianista + '.')
+        canvas.setAttribute('aria-label', 'Anteprima: ' + tab.nome + '. ' + (d.ruolo1 || 'Soprano') + ' ' + d.soprano + ', ' + d.ruolo2 + ' ' + d.voce2 + ', pianoforte ' + d.pianista + '.')
         $('caricamento').textContent = ''
         mostraControllo(tmp.grafiche)
       }).catch(function () {
@@ -534,6 +535,18 @@
     cambiato()
   }
 
+  // Riempie il menu «Vedi una serata già fatta» con le ultime serate salvate (grafiche_elenco: fino a 40, le più recenti prima).
+  function popolaStorico(lista) {
+    var sel = $('storico')
+    while (sel.options.length > 1) sel.remove(1)
+    lista.forEach(function (s) {
+      var o = document.createElement('option')
+      o.value = s.data
+      o.textContent = s.data.split('-').reverse().join('/') + (s.stato === 'confermata' ? ' — confermata' : ' — bozza')
+      sel.appendChild(o)
+    })
+  }
+
   function dataCambiata() {
     var data = $('data').value
     if (!data) return
@@ -777,6 +790,7 @@
     }
 
     chiamata('grafiche_elenco', { chiave: chiave }).then(function (lista) {
+      popolaStorico(lista)
       var bozza = bozzaLocale(false)
       if (dataDaLink) {
         $('data').value = dataDaLink
@@ -809,14 +823,24 @@
     })
 
     document.addEventListener('input', function (e) {
-      if (e.target.id === 'data' || e.target.id === 'incolla' || String(e.target.id).indexOf('loc-') === 0) return
+      if (e.target.id === 'data' || e.target.id === 'storico' || e.target.id === 'incolla' || String(e.target.id).indexOf('loc-') === 0) return
       if (e.target.id === 'orario') { locAggiornaCampo(); locPianifica() }
       if (e.target.id === 'chisei') { try { localStorage.setItem('grafiche-chisei', e.target.value) } catch (x) {} }
       completaDalRepertorio(e)
       cambiato()
     })
-    document.addEventListener('change', function (e) { if (e.target.id === 'data' || e.target.id === 'incolla' || String(e.target.id).indexOf('loc-') === 0) return; completaDalRepertorio(e); cambiato() })
-    $('data').addEventListener('change', function () { dataCambiata(); locAggiornaCampo(); locPianifica() })
+    document.addEventListener('change', function (e) { if (e.target.id === 'data' || e.target.id === 'storico' || e.target.id === 'incolla' || String(e.target.id).indexOf('loc-') === 0) return; completaDalRepertorio(e); cambiato() })
+    $('data').addEventListener('change', function () { $('storico').value = ''; dataCambiata(); locAggiornaCampo(); locPianifica() })
+    $('storico').addEventListener('change', function () {
+      if (!$('storico').value) return
+      $('data').value = $('storico').value
+      dataCambiata(); locAggiornaCampo(); locPianifica()
+    })
+    $('nuova-serata').addEventListener('click', function () {
+      $('storico').value = ''
+      $('data').value = oggiIso()
+      dataCambiata(); locAggiornaCampo(); locPianifica()
+    })
     $('nuovo-brano').addEventListener('click', function () { var v = creaVoce({ tipo: 'brano' }); elenco.appendChild(v); rinumera(); v.querySelector('.titolo').focus(); cambiato() })
     $('nuovo-solo').addEventListener('click', function () { var v = creaVoce({ tipo: 'solo' }); elenco.appendChild(v); cambiato() })
     $('compila').addEventListener('click', compila)
