@@ -90,6 +90,18 @@
     <p class="spiega">Scrivi artisti e programma: le grafiche per gli schermi esterni, il ledwall e gli schermi interni si preparano da sole,
       sui template di Almagreal, con gli stessi font. Cambiano solo i nomi e i brani, e il testo si adatta da solo allo spazio.</p>
     <div id="contenuto" hidden>
+      <section class="card" aria-labelledby="h-guida">
+        <details id="guida">
+          <summary id="h-guida">Come funziona questa pagina</summary>
+          <p class="fisso">Si scrive una volta sola e la pagina prepara da sola tutte le grafiche della serata: schermi esterni, ledwall e schermi interni.</p>
+          <p class="fisso"><strong>1. La serata</strong> — il giorno e l'orario di Voci d'Italia. «Titolo sulle grafiche» è quasi sempre «Stasera»: scegli «Domani» solo se la grafica va messa online il giorno prima.</p>
+          <p class="fisso"><strong>2. Artisti</strong> — nome del soprano, poi la seconda voce (scegli il ruolo dal menu: uomini o donne) e il nome, e il pianista (con «M°» davanti, es. «M° Mario Rossi»).</p>
+          <p class="fisso"><strong>3. Programma</strong> — un brano alla volta con «+ Aggiungi un brano» (titolo, opera, autore), oppure incolla tutto il testo da WhatsApp con «Incolla il programma» e si compila da solo. Si possono riordinare le schede trascinandole dal ☰ o con le frecce.</p>
+          <p class="fisso"><strong>4. Anteprima</strong> — nella sezione «Come vengono» si vede come verrà ogni grafica: usa le schede in alto per passare da una all'altra (esterni, ledwall, interni).</p>
+          <p class="fisso"><strong>5. Quando tutto è a posto</strong> — scrivi il tuo nome in fondo alla pagina e premi «Conferma: è tutto pronto»: il teatro riceve un avviso che le grafiche sono pronte.</p>
+          <p class="fisso">La pagina salva da sola una bozza anche nel telefono, quindi non si perde nulla se la chiudi per sbaglio.</p>
+        </details>
+      </section>
       <section class="card" aria-labelledby="h-serata">
         <h2 id="h-serata">La serata</h2>
         <div class="riga">
@@ -109,7 +121,19 @@
         <label for="soprano">Soprano</label><input id="soprano" autocomplete="off" />
         <div class="riga">
           <div><label for="ruolo2">Seconda voce</label>
-            <select id="ruolo2"><option value="Tenor">Tenore / Tenor</option><option value="Baritone">Baritono / Baritone</option><option value="Bass-baritone">Basso-baritono / Bass-baritone</option><option value="Bass">Basso / Bass</option><option value="Mezzo-soprano">Mezzosoprano / Mezzo-soprano</option><option value="Countertenor">Controtenore / Countertenor</option></select></div>
+            <select id="ruolo2">
+              <optgroup label="Uomini">
+                <option value="Tenor">Tenore</option>
+                <option value="Baritone">Baritono</option>
+                <option value="Bass-baritone">Basso-baritono</option>
+                <option value="Bass">Basso</option>
+                <option value="Countertenor">Controtenore</option>
+              </optgroup>
+              <optgroup label="Donne">
+                <option value="Soprano">Soprano</option>
+                <option value="Mezzo-soprano">Mezzosoprano</option>
+              </optgroup>
+            </select></div>
           <div><label for="voce2">Nome</label><input id="voce2" autocomplete="off" /></div>
         </div>
         <label for="pianista">Pianoforte <small>(con M° davanti al nome)</small></label><input id="pianista" autocomplete="off" placeholder="M° nome e cognome" />
@@ -145,29 +169,40 @@
         <div class="tab" id="tab" role="group" aria-label="Quale grafica vedere"></div>
         <div class="anteprima-box"><canvas id="anteprima" class="anteprima" aria-label="Anteprima della grafica"></canvas><div class="caricamento" id="caricamento"></div></div>
         <div id="controllo" class="controllo" role="status"></div>
-        <h3 class="sotto">Immagini (PNG)</h3>
-        <div class="azioni">
-          <button type="button" id="scarica-questa">Scarica solo questa</button>
-          <button type="button" class="primario" id="scarica">Scarica tutte le immagini</button>
-        </div>
-        <p class="nota">Il tappo del ledwall è solo un'immagine PNG, grande esattamente come il ledwall (4224 × 4320), con i nomi degli artisti e il programma insieme. Per mandarlo ai tecnici: scarica
-          «Ledwall · nomi e programma» e caricalo su <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer">WeTransfer</a> (si apre in un'altra pagina).</p>
-        <h3 class="sotto">Video per gli schermi esterni (MP4)</h3>
-        <p class="nota">Durano 15 secondi. Nei primi 7 lo sfondo si assesta piano, le note musicali entrano una a una e i testi arrivano nell'ordine in cui si leggono;
-          poi l'immagine resta ferma. Si preparano qui, nel browser: dal computer, con Chrome o Edge; serve circa un minuto per video. Tieni aperta la pagina.</p>
-        <div class="azioni">
-          <button type="button" id="video-questo">Video di questa grafica</button>
-          <button type="button" class="primario" id="video-tutti">Tutti i video</button>
-        </div>
-        <progress id="avanzamento" max="1" value="0" hidden aria-label="Avanzamento del video"></progress>
-        <div class="azioni"><button type="button" id="salva">Salva la serata</button></div>
-        <div id="msg" class="msg" role="status" hidden></div>
-        <div id="pronti" class="pronti" aria-live="polite"></div>
         <label for="chisei">Il tuo nome <small>(così si sa chi ha scritto)</small></label>
         <input id="chisei" autocomplete="off" />
+        <div class="azioni"><button type="button" id="salva">Salva la serata</button></div>
+        <div id="msg" class="msg" role="status" hidden></div>
+        <div id="solo-completo">
+          <h3 class="sotto">Immagini (PNG)</h3>
+          <div class="azioni">
+            <button type="button" id="scarica-questa">Scarica solo questa</button>
+            <button type="button" class="primario" id="scarica">Scarica tutte le immagini</button>
+          </div>
+          <p class="nota">Il tappo del ledwall è solo un'immagine PNG, grande esattamente come il ledwall (4224 × 4320), con i nomi degli artisti e il programma insieme. Per mandarlo ai tecnici: scarica
+            «Ledwall · nomi e programma» e caricalo su <a href="https://wetransfer.com" target="_blank" rel="noopener noreferrer">WeTransfer</a> (si apre in un'altra pagina).</p>
+          <h3 class="sotto">Video per gli schermi esterni (MP4)</h3>
+          <p class="nota">Durano 15 secondi. Nei primi 7 lo sfondo si assesta piano, le note musicali entrano una a una e i testi arrivano nell'ordine in cui si leggono;
+            poi l'immagine resta ferma. Si preparano qui, nel browser: dal computer, con Chrome o Edge; serve circa un minuto per video. Tieni aperta la pagina.</p>
+          <div class="azioni">
+            <button type="button" id="video-questo">Video di questa grafica</button>
+            <button type="button" class="primario" id="video-tutti">Tutti i video</button>
+          </div>
+          <progress id="avanzamento" max="1" value="0" hidden aria-label="Avanzamento del video"></progress>
+          <div id="pronti" class="pronti" aria-live="polite"></div>
+        </div>
       </section>
 
-      <section class="card" aria-labelledby="h-locandine">
+      <section class="card" aria-labelledby="h-nota-pagina">
+        <h2 id="h-nota-pagina">Una nota per Osaid</h2>
+        <p class="fisso">Vuoi chiedere una modifica a questa pagina o segnalare qualcosa? Scrivila qui: arriva direttamente a Osaid.</p>
+        <label for="nota-pagina">La tua nota</label>
+        <textarea id="nota-pagina" rows="3" placeholder="Es. il menu dei ruoli non ha..., servirebbe anche..., c'è un errore in..."></textarea>
+        <div class="azioni"><button type="button" class="primario" id="nota-invia">Invia la nota</button></div>
+        <div id="nota-msg" class="msg" role="status" hidden></div>
+      </section>
+
+      <section class="card" id="sezione-locandine" aria-labelledby="h-locandine">
         <h2 id="h-locandine">Locandine per gli schermi interni</h2>
         <p class="fisso">I template orizzontali di Almagreal per i monitor dentro il teatro hanno un riquadro per una foto, a destra (gli schermi esterni, verticali,
           e il ledwall non hanno foto). Scegli la locandina, controlla la data e scegli una foto dalla raccolta.</p>

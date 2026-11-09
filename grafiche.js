@@ -7,6 +7,7 @@
   var partiHash = decodeURIComponent((location.hash || '').replace(/^#/, '')).split('&')
   var chiave = partiHash[0]
   var dataDaLink = (partiHash.filter(function (p) { return /^d=\d{4}-\d{2}-\d{2}$/.test(p) })[0] || '').slice(2)
+  var vistaSemplice = partiHash.indexOf('v=semplice') !== -1
   var $ = function (id) { return document.getElementById(id) }
   var T = window.GRAFICHE_TESTI
   var tabCorrente = 'esterni-artisti'
@@ -351,6 +352,20 @@
       messaggio(t.indexOf('non entra:') === 0 ? 'Non confermo: in queste grafiche il testo non entra (' + t.slice(10) + '). Accorcia o togli qualcosa.'
         : 'Non sono riuscito a confermare. Controlla la connessione e riprova.', 'attenzione')
     })
+  }
+
+  function inviaNotaPagina() {
+    var m = $('nota-msg')
+    var mostra = function (testo, tipo) { m.hidden = !testo; m.textContent = testo || ''; m.className = 'msg' + (tipo ? ' ' + tipo : '') }
+    var testo = ($('nota-pagina').value || '').trim()
+    if (!testo) { mostra('Scrivi prima la nota.', 'attenzione'); $('nota-pagina').focus(); return }
+    $('nota-invia').disabled = true
+    chiamata('grafiche_nota', { chiave: chiave, testo: testo, chi: $('chisei').value || null }).then(function () {
+      $('nota-pagina').value = ''
+      mostra('Inviata: arriva a Osaid.', 'ok')
+    }).catch(function () {
+      mostra('Non sono riuscito a inviarla. Controlla la connessione e riprova.', 'attenzione')
+    }).then(function () { $('nota-invia').disabled = false })
   }
 
   // ---------- messaggi, bozza, salvataggio ----------
@@ -755,6 +770,11 @@
     preparaListe()
     $('contenuto').hidden = false
     try { $('chisei').value = localStorage.getItem('grafiche-chisei') || '' } catch (e) {}
+    if (vistaSemplice) {
+      $('solo-completo').hidden = true
+      $('sezione-locandine').hidden = true
+      $('guida').open = true
+    }
 
     chiamata('grafiche_elenco', { chiave: chiave }).then(function (lista) {
       var bozza = bozzaLocale(false)
@@ -806,6 +826,7 @@
     $('video-questo').addEventListener('click', function () { scaricaVideoLista([tabAttuale()]) })
     $('salva').addEventListener('click', function () { salva(false) })
     $('conferma').addEventListener('click', conferma)
+    $('nota-invia').addEventListener('click', inviaNotaPagina)
   }
 
   avvia()

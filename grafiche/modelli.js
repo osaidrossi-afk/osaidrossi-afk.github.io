@@ -49,19 +49,19 @@
     return w
   }
 
-  // Nomi degli artisti, uno sotto l'altro (come nei template): ruolo («Soprano / Soprano») e sotto il nome.
-  // cfg = {left, top, width, align, lh, ls, ruolo, nome, sep} (misure di Canva, già per la dimensione della grafica).
+  // Nomi degli artisti, uno sotto l'altro (come nei template): ruolo (solo inglese) e nome, in quest'ordine o invertito.
+  // cfg = {left, top, width, align, lh, ls, ruolo, nome, sep, ordine} (misure di Canva, già per la dimensione della grafica).
+  // cfg.ordine: 'ruolo-sopra' (default, il ruolo sopra il nome) oppure 'nome-sopra' (il nome sopra, più in vista — Osaid, 8/11/2026).
   // Se una riga non entra nel riquadro, tutto il blocco si rimpicciolisce (stessi font) finché entra.
   function nomi(d, ctx, cfg) {
     var lista = artisti(d)
+    var nomeSopra = cfg.ordine === 'nome-sopra'
     var costruisci = function (k) {
       var lines = []
       lista.forEach(function (a, i) {
-        lines.push(conStrato(riga2([
-          { t: a.it + ' / ', f: 'serifb', size: cfg.ruolo * k, color: BIANCO },
-          { t: a.en, f: 'serifi', size: cfg.ruolo * k, color: BIANCO },
-        ]), 'r' + (i + 1)))
-        lines.push(conStrato(riga('sansb', cfg.nome * k, ROSSO, a.nome), 'n' + (i + 1)))
+        var rigaRuolo = conStrato(riga('serifb', cfg.ruolo * k, BIANCO, a.en), 'r' + (i + 1))
+        var rigaNome = conStrato(riga('sansb', cfg.nome * k, ROSSO, a.nome), 'n' + (i + 1))
+        if (nomeSopra) { lines.push(rigaNome); lines.push(rigaRuolo) } else { lines.push(rigaRuolo); lines.push(rigaNome) }
         if (i < lista.length - 1) lines.push(riga('serifb', cfg.sep * k, BIANCO, ''))
       })
       return lines
@@ -232,7 +232,8 @@
           return m
         } },
       blocchi: function (d, ctx) {
-        return [nomi(d, ctx, { left: 215.1328 * K, top: 552.4221 * K, width: 649.7344 * K, lh: 1.13, ls: 0.026, ruolo: 66.6667 * K, nome: 49.5666 * K, sep: 72.8915 * K })]
+        // Il nome sopra il ruolo, ed è lui il testo grande: il ruolo resta sotto, più piccolo (Osaid, 8/11/2026).
+        return [nomi(d, ctx, { left: 215.1328 * K, top: 552.4221 * K, width: 649.7344 * K, lh: 1.13, ls: 0.026, ordine: 'nome-sopra', nome: 85 * K, ruolo: 55 * K, sep: 85 * K })]
       },
     },
     // Schermi esterni — programma: «CONCERT PROGRAM / TONIGHT 20.30» e due colonne (l'intervallo apre la colonna di destra)
@@ -282,8 +283,8 @@
         // Tutti con lo stesso corpo, ridotto solo se la riga più lunga non entra nella larghezza disponibile.
         var larg = 2650, ruolo = 100, nome = 155, k = 1, massima = 0
         function parti(a, kk) {
-          return [{ t: a.it + ' / ', f: 'serifb', size: ruolo * kk, color: BIANCO }, { t: a.en, f: 'serifi', size: ruolo * kk, color: BIANCO },
-            { t: '    ' + a.nome, f: 'sansb', size: nome * kk, color: ROSSO }]
+          return [{ t: a.en + '    ', f: 'serifb', size: ruolo * kk, color: BIANCO },
+            { t: a.nome, f: 'sansb', size: nome * kk, color: ROSSO }]
         }
         lista.forEach(function (a) {
           var w = 0
