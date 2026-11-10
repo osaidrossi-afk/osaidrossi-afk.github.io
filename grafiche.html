@@ -81,16 +81,17 @@
     h3.sotto { font-size: 13px; font-weight: 700; margin: 16px 0 4px; color: var(--ink); }
     progress { width: 100%; height: 12px; margin-top: 10px; accent-color: var(--accent); }
     details summary { cursor: pointer; font-size: 14px; font-weight: 600; padding: 6px 0; }
+    .solo-scarica .modifica { display: none !important; }
   </style>
 </head>
 <body>
   <main>
     <p class="sopra">Teatro Nazionale Firenze · Voci d'Italia</p>
     <h1>Grafiche della serata</h1>
-    <p class="spiega">Scrivi artisti e programma: le grafiche per gli schermi esterni, il ledwall e gli schermi interni si preparano da sole,
+    <p class="spiega modifica">Scrivi artisti e programma: le grafiche per gli schermi esterni, il ledwall e gli schermi interni si preparano da sole,
       sui template di Almagreal, con gli stessi font. Cambiano solo i nomi e i brani, e il testo si adatta da solo allo spazio.</p>
     <div id="contenuto" hidden>
-      <section class="card" aria-labelledby="h-guida">
+      <section class="card modifica" aria-labelledby="h-guida">
         <details id="guida">
           <summary id="h-guida">Come funziona questa pagina</summary>
           <p class="fisso">Si scrive una volta sola e la pagina prepara da sola tutte le grafiche della serata: schermi esterni, ledwall e schermi interni.</p>
@@ -102,7 +103,7 @@
           <p class="fisso">La pagina salva da sola una bozza anche nel telefono, quindi non si perde nulla se la chiudi per sbaglio.</p>
         </details>
       </section>
-      <section class="card" aria-labelledby="h-serata">
+      <section class="card modifica" aria-labelledby="h-serata">
         <h2 id="h-serata">La serata</h2>
         <div class="riga">
           <div><label for="data">Giorno</label><input id="data" type="date" /></div>
@@ -119,7 +120,7 @@
         <div class="azioni"><button type="button" id="nuova-serata">+ Prepara la prossima serata</button></div>
       </section>
 
-      <section class="card" aria-labelledby="h-artisti">
+      <section class="card modifica" aria-labelledby="h-artisti">
         <h2 id="h-artisti">Artisti</h2>
         <div class="riga">
           <div><label for="ruolo1">Prima voce</label>
@@ -143,7 +144,7 @@
         <label for="pianista">Pianoforte <small>(con M° davanti al nome)</small></label><input id="pianista" autocomplete="off" placeholder="M° nome e cognome" />
       </section>
 
-      <section class="card" aria-labelledby="h-programma">
+      <section class="card modifica" aria-labelledby="h-programma">
         <h2 id="h-programma">Programma</h2>
         <details id="incolla-box">
           <summary>Incolla il programma (da WhatsApp)</summary>
@@ -161,7 +162,7 @@
         </div>
       </section>
 
-      <section class="card" id="conferma-box" aria-labelledby="h-conferma">
+      <section class="card modifica" id="conferma-box" aria-labelledby="h-conferma">
         <h2 id="h-conferma">Quando è tutto a posto</h2>
         <p class="fisso" id="conferma-testo">Controlla le anteprime qui sotto, poi premi «Conferma»: il teatro riceve un avviso e trova le grafiche pronte da scaricare.</p>
         <div class="azioni"><button type="button" class="primario" id="conferma">Conferma: è tutto pronto</button></div>
@@ -170,12 +171,15 @@
 
       <section class="card" aria-labelledby="h-anteprima">
         <h2 id="h-anteprima">Come vengono</h2>
+        <div id="solo-scarica-testo" class="controllo ok" role="status" hidden></div>
         <div class="tab" id="tab" role="group" aria-label="Quale grafica vedere"></div>
         <div class="anteprima-box"><canvas id="anteprima" class="anteprima" aria-label="Anteprima della grafica"></canvas><div class="caricamento" id="caricamento"></div></div>
         <div id="controllo" class="controllo" role="status"></div>
-        <label for="chisei">Il tuo nome <small>(così si sa chi ha scritto)</small></label>
-        <input id="chisei" autocomplete="off" />
-        <div class="azioni"><button type="button" id="salva">Salva la serata</button></div>
+        <div class="modifica">
+          <label for="chisei">Il tuo nome <small>(così si sa chi ha scritto)</small></label>
+          <input id="chisei" autocomplete="off" />
+          <div class="azioni"><button type="button" id="salva">Salva la serata</button></div>
+        </div>
         <div id="msg" class="msg" role="status" hidden></div>
         <div id="solo-completo">
           <h3 class="sotto">Immagini (PNG)</h3>
@@ -197,7 +201,7 @@
         </div>
       </section>
 
-      <section class="card" aria-labelledby="h-nota-pagina">
+      <section class="card modifica" aria-labelledby="h-nota-pagina">
         <h2 id="h-nota-pagina">Una nota per Osaid</h2>
         <p class="fisso">Vuoi chiedere una modifica a questa pagina o segnalare qualcosa? Scrivila qui: arriva direttamente a Osaid.</p>
         <label for="nota-pagina">La tua nota</label>

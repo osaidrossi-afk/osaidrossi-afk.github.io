@@ -8,6 +8,8 @@
   var chiave = partiHash[0]
   var dataDaLink = (partiHash.filter(function (p) { return /^d=\d{4}-\d{2}-\d{2}$/.test(p) })[0] || '').slice(2)
   var vistaSemplice = partiHash.indexOf('v=semplice') !== -1
+  // Vista «solo scarica» (link dell'app per il teatro): la serata del link presa dal database, mai dalla bozza del browser; non salva nulla.
+  var soloScarica = partiHash.indexOf('v=scarica') !== -1 && !!dataDaLink
   var $ = function (id) { return document.getElementById(id) }
   var T = window.GRAFICHE_TESTI
   var tabCorrente = 'esterni-artisti'
@@ -378,6 +380,7 @@
   }
 
   function bozzaLocale(scrivi) {
+    if (soloScarica) return null
     try {
       if (scrivi) localStorage.setItem(BOZZA, JSON.stringify({ data: $('data').value, dati: leggiForm(), chi: $('chisei').value }))
       else return JSON.parse(localStorage.getItem(BOZZA) || 'null')
@@ -388,7 +391,7 @@
   function salva(silenzioso) {
     var d = leggiForm()
     var data = $('data').value
-    if (caricando) return Promise.resolve(false)
+    if (caricando || soloScarica) return Promise.resolve(false)
     if (!data || !String(d.soprano).trim()) {
       if (!silenzioso) messaggio('Scrivi almeno il giorno e il nome del soprano per salvare.', 'attenzione')
       return Promise.resolve(false)
@@ -553,10 +556,11 @@
     caricando = true
     chiamata('grafiche_leggi', { chiave: chiave, la_data: data }).then(function (r) {
       caricando = false
-      if (!r) { mostraConferma('bozza'); quandoDaData(); $('stato-serata').textContent = 'Serata nuova: i campi che vedi restano, cambia quello che serve.'; cambiato(); return }
+      if (!r) { if (soloScarica) testoSoloScarica(null); mostraConferma('bozza'); quandoDaData(); $('stato-serata').textContent = 'Serata nuova: i campi che vedi restano, cambia quello che serve.'; cambiato(); return }
       scriviForm(r.dati)
       ultimoSalvato = JSON.stringify(leggiForm())
       mostraConferma(r.stato, r.confermata_il, r.confermata_da)
+      if (soloScarica) testoSoloScarica(r)
       var q = new Date(r.aggiornato_il)
       $('stato-serata').textContent = 'Serata già salvata' + (r.autore ? ' da ' + r.autore : '') + ' (' +
         q.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + ' ' + q.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + ').'
@@ -769,6 +773,18 @@
     locRaccolta()
   }
 
+  function testoSoloScarica(r) {
+    var box = $('solo-scarica-testo')
+    var giorno = new Date(dataDaLink + 'T12:00:00').toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })
+    box.hidden = false
+    if (!r) { box.className = 'controllo attenzione'; box.textContent = 'La serata di ' + giorno + ' non è ancora stata scritta.'; return }
+    var q = r.confermata_il ? new Date(r.confermata_il) : null
+    box.className = 'controllo ' + (r.stato === 'confermata' ? 'ok' : 'attenzione')
+    box.textContent = 'Serata di ' + giorno + ' — ' + (r.stato === 'confermata'
+      ? 'confermata' + (r.confermata_da ? ' da ' + r.confermata_da : '') + (q ? ' il ' + q.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' }) + ' alle ' + q.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '') + '.'
+      : 'non ancora confermata: queste sono le grafiche dell’ultima versione salvata.') + ' Qui si scarica soltanto, non si modifica nulla.'
+  }
+
   // ---------- avvio ----------
   function errore(testo) {
     $('contenuto').hidden = true
@@ -783,6 +799,9 @@
     preparaListe()
     $('contenuto').hidden = false
     try { $('chisei').value = localStorage.getItem('grafiche-chisei') || '' } catch (e) {}
+    if (soloScarica) document.body.classList.add('solo-scarica')
+    // Cambiando l'indirizzo a mano la pagina non si ricarica da sola: senza questo resterebbe la serata di prima.
+    window.addEventListener('hashchange', function () { location.reload() })
     if (vistaSemplice) {
       $('solo-completo').hidden = true
       $('sezione-locandine').hidden = true
