@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Teatro Nazionale Firenze — nuovo indirizzo</title>
+<script>
+  // Il vecchio indirizzo (osaidrossi-afk.github.io) rimanda alla stessa pagina sul dominio del teatro,
+  // tenendo tutto quello che c'è dopo il nome del sito (pagina, data, chiave dopo il #).
+  location.replace('https://gestione.teatronazionalefirenze.it' + location.pathname + location.search + location.hash);
+</script>
+<style>
+  body { font-family: system-ui, sans-serif; background: #F6F2EA; color: #2a2a2a; margin: 0; padding: 48px 16px; text-align: center; }
+  a { color: #7A1F2B; font-weight: 600; }
+</style>
+</head>
+<body>
+<p>La piattaforma del Teatro Nazionale Firenze si è spostata.</p>
+<p><a id="vai" href="https://gestione.teatronazionalefirenze.it/">Apri il nuovo indirizzo</a></p>
+<script>document.getElementById('vai').href = 'https://gestione.teatronazionalefirenze.it' + location.pathname + location.search + location.hash;</script>
+</body>
+</html>
